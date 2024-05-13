@@ -5,44 +5,34 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Database {
+    private Connection connection;
 
-    private static Connection conn = null;
+    // Konstruktor
+    public Database(String host, int port, String databaseName, String username, String password) {
+        String url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
 
-    public static void createDatabaseConnection() {
         try {
-            // Load the MySQL JDBC driver (not necessary for newer JDBC drivers)
-            // Class.forName("com.mysql.cj.jdbc.Driver");
-
-            String url = "jdbc:mysql://" + Config.getConfig("mysql.server") + ":" + Config.getConfig("mysql.port") + "/"
-                    + Config.getConfig("mysql.database");
-
-            // Establish the database connection
-            conn = DriverManager.getConnection(url, Config.getConfig("mysql.user"),
-                    Config.getConfig("mysql.password"));
-
-            System.out.println("Verbindung zur Datenbank hergestellt.");
-
+            // Verbindung zur Datenbank herstellen
+            this.connection = DriverManager.getConnection(url, username, password);
+            System.out.println("Verbindung zur MySQL-Datenbank hergestellt");
         } catch (SQLException e) {
-            System.out.println("Verbindung zur Datenbank fehlgeschlagen!");
-            e.printStackTrace();
+            System.err.println("Fehler beim Verbinden mit der Datenbank: " + e.getMessage());
         }
     }
 
-    public static Connection getInstance() {
-        if (conn == null) {
-            createDatabaseConnection(); // Establish connection if not already done
-        }
-        return conn;
+    // Methode zur Rückgabe der Datenbankverbindung
+    public Connection getConnection() {
+        return this.connection;
     }
 
-    public static void closeConnection() {
-        if (conn != null) {
+    // Methode zur Schließung der Datenbankverbindung
+    public void closeConnection() {
+        if (this.connection != null) {
             try {
-                conn.close();
-                System.out.println("Datenbankverbindung geschlossen.");
+                this.connection.close();
+                System.out.println("Verbindung zur MySQL-Datenbank geschlossen");
             } catch (SQLException e) {
-                System.out.println("Fehler beim Schließen der Datenbankverbindung!");
-                e.printStackTrace();
+                System.err.println("Fehler beim Schließen der Datenbankverbindung: " + e.getMessage());
             }
         }
     }
