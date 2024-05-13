@@ -6,7 +6,7 @@ import java.util.Properties;
 
 public class Config {
 
-    public static String getConfig(String valueName) {
+    public static String getConfig(String v) {
         Properties properties = new Properties();
         FileInputStream input = null;
 
@@ -15,7 +15,7 @@ public class Config {
                     "server\\src\\main\\java\\com\\sejacha\\server\\config.properties");
             properties.load(input);
 
-            return properties.getProperty(valueName);
+            return properties.getProperty(v);
 
         } catch (Exception ex) {
             ex.printStackTrace();
