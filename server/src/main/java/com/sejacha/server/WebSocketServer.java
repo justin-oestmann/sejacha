@@ -3,19 +3,18 @@ package com.sejacha.server;
 import java.net.*;
 import java.io.*;
 
-public class WebSocketServer{
+public class WebSocketServer {
     private int port;
     private ServerSocket serverSocket;
 
-
-    public WebSocketServer(int port = 4999) {
-        this.port = port;
+    public WebSocketServer() throws IOException {
+        this.port = 4999;
         this.serverSocket = new ServerSocket(this.port);
-        
     }
 
-
-
-
+    public WebSocketServer(int port) throws IOException {
+        this.port = port;
+        this.serverSocket = new ServerSocket(this.port);
+    }
 
 }
