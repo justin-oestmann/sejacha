@@ -1,3 +1,1 @@
-server/target/
-server/target/*
-server/target/classes/com/sejacha/server/*
+**/server/target/
