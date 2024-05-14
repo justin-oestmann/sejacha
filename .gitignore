@@ -1,3 +1,9 @@
 client/target/*
 server/target/*
 
+client/target/classes/com/sejacha/client/Main.class
+client/target/classes/com/sejacha/client/SocketClient.class
+server/target/classes/com/sejacha/server/API.class
+server/target/classes/com/sejacha/server/Room.class
+server/target/classes/com/sejacha/server/Session.class
+server/target/classes/com/sejacha/server/User.class
