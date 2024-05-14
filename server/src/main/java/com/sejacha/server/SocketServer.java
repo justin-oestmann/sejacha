@@ -1,59 +1,70 @@
 package com.sejacha.server;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class SocketServer {
-    private int port;
+
     private ServerSocket serverSocket;
-    private boolean running;
+    private int port;
+    private List<ServerClient> clients = new ArrayList<>();
 
     public SocketServer() {
-        try {
-            this.port = 4999;
-            this.serverSocket = new ServerSocket(this.port);
-            running = true;
-        } catch (IOException e) {
-            System.err.println("Error: Unable to start server on port " + port);
-            e.printStackTrace();
-            running = false;
-        }
+        this.port = 4999;
     }
 
     public SocketServer(int port) {
-        try {
-            this.port = port;
-            this.serverSocket = new ServerSocket(this.port);
-            running = true;
-        } catch (IOException e) {
-            System.err.println("Error: Unable to start server on port " + port);
-            e.printStackTrace();
-            running = false;
-        }
+        this.port = port;
     }
 
-    public void start() {
-        if (!running) {
-            System.err.println("Error: Server not running");
+    public SocketServer(int port, boolean directStart) throws IOException {
+        this.port = port;
+        this.start();
+    }
+
+    public void start() throws IOException {
+        if (this.serverSocket != null) {
+            SysPrinter.println("SocketClient", "server is already running");
             return;
         }
 
-        System.out.println("Waiting for clients to connect...");
+        ServerSocket ss = new ServerSocket(this.port);
 
-        while (running) {
+        this.serverSocket = ss;
+        SysPrinter.println("SocketClient", "server started!");
+        handleServer(this.serverSocket);
+
+    }
+
+    public List<ServerClient> getClients() {
+        return this.clients;
+    }
+
+    private Runnable handleServer(ServerSocket serverSocket) {
+        SysPrinter.println("SocketClient", "starting handling clients...");
+        while (true) {
             try {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("New client connected: " + clientSocket);
+                Socket socket = serverSocket.accept();
 
-                // Handle client in a new thread
-                ClientHandler handler = new ClientHandler(clientSocket);
-                new Thread(handler).start();
+                SysPrinter.println("ServerSocket",
+                        "Client connected (" + socket.getInetAddress() + ":" + socket.getPort()
+                                + ")");
 
-            } catch (IOException e) {
-                System.err.println("Error accepting client connection");
-                e.printStackTrace();
+                ServerClient client = new ServerClient(socket, this.clients);
+
+                clients.add(client);
+                client.start();
+
+            } catch (Exception ex) {
+
             }
         }
+
     }
 
 }
