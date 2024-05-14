@@ -1,6 +1,11 @@
 package com.sejacha.server;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import com.mysql.cj.x.protobuf.MysqlxPrepare.Execute;
 
 public class Message {
 
@@ -8,7 +13,7 @@ public class Message {
     private String user_id;
     private String room_id;
     private String message;
-    private LocalDateTime time_created;
+    private LocalDateTime timestamp;
 
     public Message() {
 
@@ -85,7 +90,7 @@ public class Message {
      * Sets Date and Time to now
      */
     public void setTimeCreated() {
-        this.time_created = LocalDateTime.now();
+        this.timestamp = LocalDateTime.now();
     };
 
     /**
@@ -94,16 +99,49 @@ public class Message {
      * @param date - LocalDateTime that contains the Date and Time
      */
     public void setTimeCreated(LocalDateTime date) {
-        this.time_created = date;
+        this.timestamp = date;
     }
 
     /**
-     * gets time_created
+     * gets timestamp
      * 
-     * @return time_created
+     * @return timestamp
      */
     public LocalDateTime getTimeCreated() {
-        return this.time_created;
+        return this.timestamp;
+    }
+
+    public void create() throws Exception {
+        if (this.id != null) {
+            throw new Exception("id already set! Data may be already exists on database");
+        }
+
+        if (this.room_id == null) {
+            throw new Exception("room not set!");
+        }
+
+        if (this.user_id == null) {
+            throw new Exception("user_id not set!");
+        }
+
+        if (this.timestamp == null) {
+            throw new Exception("timestamp not set!");
+        }
+
+        if (this.message == null) {
+            throw new Exception("message not set!");
+        }
+
+        String query = "INSERT INTO messages (message_id,message_user_id,message_room_id,message_timestamp,message_text) VALUES (?,?,?,?,?)";
+        PreparedStatement stmt = Database.getConnection().prepareStatement(query);
+
+        stmt.setString(1, this.id);
+        stmt.setString(2, this.user_id);
+        stmt.setString(3, this.room_id);
+        stmt.setString(4, this.timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        stmt.setString(5, this.message);
+
+        ResultSet rs = stmt.executeQuery();
     }
 
 }
