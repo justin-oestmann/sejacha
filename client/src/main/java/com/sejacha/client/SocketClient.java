@@ -14,8 +14,8 @@ public class SocketClient {
             socket = new Socket(serverAddress, serverPort);
             System.out.println("Connected to server at " + serverAddress + ":" + serverPort);
 
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.out = new PrintWriter(socket.getOutputStream(), true);
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             // Start a thread to handle incoming messages from the server
             new Thread(() -> {
@@ -27,6 +27,7 @@ public class SocketClient {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
             }).start();
 
         } catch (IOException e) {
@@ -36,6 +37,7 @@ public class SocketClient {
 
     public void sendMessage(String message) {
         out.println(message);
+
     }
 
 }
