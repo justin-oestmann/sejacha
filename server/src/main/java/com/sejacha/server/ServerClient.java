@@ -53,12 +53,10 @@ public class ServerClient extends Thread {
     }
 
     private void handleMessages(String input) {
-        System.out.println(input);
+
         try {
 
             JSONObject jsonObject = new JSONObject(input);
-
-            System.out.println(input);
 
             switch (jsonObject.getString("exec")) {
                 case "send":
@@ -71,7 +69,6 @@ public class ServerClient extends Thread {
                     break;
             }
 
-            System.out.println(input);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
