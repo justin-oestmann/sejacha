@@ -111,7 +111,7 @@ public class Message {
         return this.timestamp;
     }
 
-    public void create() throws Exception {
+    public boolean create() throws Exception {
         if (this.id != null) {
             throw new Exception("id already set! Data may be already exists on database");
         }
@@ -142,6 +142,7 @@ public class Message {
         stmt.setString(5, this.message);
 
         ResultSet rs = stmt.executeQuery();
+        return rs.rowInserted();
     }
 
 }
