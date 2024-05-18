@@ -15,32 +15,47 @@ public class Main {
         SocketClient client = new SocketClient(serverAddress, serverPort);
 
         String authToken = "";
+        Scanner scanner = new Scanner(System.in); // Move scanner initialization here
 
-        while (authToken == "") {
-            String username = null;
-            String password = null;
+        while (authToken.equals("")) {
+            String username = "";
+            String password = "";
 
-            Scanner scanner1 = new Scanner(System.in);
-            System.out.println("Please enter your username:");
+            // Benutzername eingeben mit Überprüfung
+            while (username.isEmpty()) {
+                System.out.print("Benutzername: ");
+                if (scanner.hasNextLine()) {
+                    username = scanner.nextLine().trim();
+                    if (username.isEmpty()) {
+                        System.out.println("Benutzername darf nicht leer sein. Bitte erneut eingeben.");
+                    }
+                } else {
+                    System.out.println("Keine Eingabe gefunden. Bitte erneut eingeben.");
+                    scanner.next(); // Zum nächsten Token springen
+                }
+            }
 
-            System.out.print("> ");
+            // Passwort eingeben mit Überprüfung
+            while (password.isEmpty()) {
+                System.out.print("Passwort: ");
+                if (scanner.hasNextLine()) {
+                    password = scanner.nextLine().trim();
+                    if (password.isEmpty()) {
+                        System.out.println("Passwort darf nicht leer sein. Bitte erneut eingeben.");
+                    }
+                } else {
+                    System.out.println("Keine Eingabe gefunden. Bitte erneut eingeben.");
+                    scanner.next(); // Zum nächsten Token springen
+                }
+            }
 
-            username = scanner1.nextLine();
-            scanner1.close();
-
-            Scanner scanner2 = new Scanner(System.in);
-            System.out.println("Please enter your password:");
-
-            System.out.print("> ");
-
-            password = scanner2.nextLine();
-
-            scanner2.close();
-
-            if (username != "" && password != "") {
+            System.out.println(username);
+            System.out.println(password);
+            if (!username.isEmpty() && !password.isEmpty()) {
 
                 client.sendMessage(
-                        "{\"exec\":\"auth\", \"username\":\"" + username + "\", \"password\":\"" + password + "\"}");
+                        "{\"exec\":\"auth\", \"username\":\"" + username + "\", \"password\":\"" +
+                                password + "\"}");
                 SysPrinter.println("Info", "Checking credentials...");
             }
         }
@@ -48,10 +63,8 @@ public class Main {
         // Send messages to the server
 
         while (true) {
-            Scanner scanner = new Scanner(System.in);
-            String data = null;
             System.out.print(">");
-            data = scanner.nextLine();
+            String data = scanner.nextLine();
             if (data != null) {
                 switch (data) {
                     case "pong":
