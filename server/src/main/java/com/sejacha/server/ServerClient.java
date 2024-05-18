@@ -28,30 +28,37 @@ public class ServerClient extends Thread {
     }
 
     public void run() {
-        try {
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                this.handleMessages(inputLine);
-                // Handle incoming messages from client as needed
-            }
-        } catch (SocketException e) {
-            SysPrinter.println("SocketClient", "client disconnected (" + e.getMessage() + ")");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
+        while (true) {
             try {
-                socket.close();
-                this.clientList.remove(this);
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    this.handleMessages(inputLine);
+                    // Handle incoming messages from client as needed
+                }
+            } catch (SocketException e) {
+                SysPrinter.println("SocketClient", "Client disconnected (" + e.getMessage() + ")");
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    socket.close();
+                    this.clientList.remove(this);
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+
+                }
             }
         }
     }
 
     private void handleMessages(String input) {
+        System.out.println(input);
         try {
 
             JSONObject jsonObject = new JSONObject(input);
+
+            System.out.println(input);
 
             switch (jsonObject.getString("exec")) {
                 case "send":
@@ -66,7 +73,7 @@ public class ServerClient extends Thread {
 
             System.out.println(input);
         } catch (Exception ex) {
-
+            ex.printStackTrace();
         }
 
     }
