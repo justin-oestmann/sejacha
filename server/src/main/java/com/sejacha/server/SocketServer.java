@@ -33,9 +33,9 @@ public class SocketServer {
             return;
         }
 
-        ServerSocket ss = new ServerSocket(this.port);
+        ServerSocket serverSocket = new ServerSocket(this.port);
 
-        this.serverSocket = ss;
+        this.serverSocket = serverSocket;
         SysPrinter.println("SocketClient", "server started!");
         handleServer(this.serverSocket);
 
