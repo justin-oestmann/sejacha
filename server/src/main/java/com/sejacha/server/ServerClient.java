@@ -60,9 +60,10 @@ public class ServerClient extends Thread {
 
             switch (jsonObject.getString("exec")) {
                 case "send":
-
                     SysPrinter.println("ServerClient", "exec command from " + this.socket.getInetAddress());
-
+                    break;
+                case "auth":
+                    SysPrinter.println("ServerClient", "Client send auth request " + this.socket.getInetAddress());
                     break;
 
                 default:
