@@ -55,7 +55,7 @@ public class Main {
 
                 client.sendMessage(
                         "{\"exec\":\"auth\", \"username\":\"" + username + "\", \"password\":\"" +
-                                password + "\"}");
+                                Crypt.calculateSHA512(password) + "\"}");
                 SysPrinter.println("Info", "Checking credentials...");
             }
         }
