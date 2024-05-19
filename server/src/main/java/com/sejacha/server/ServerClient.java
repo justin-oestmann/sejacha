@@ -11,6 +11,7 @@ public class ServerClient extends Thread {
     private List<ServerClient> clientList;
     private PrintWriter out;
     private BufferedReader in;
+    private int authTries = 0;
 
     public ServerClient(Socket socket, List<ServerClient> clientList) {
         this.socket = socket;
@@ -33,10 +34,16 @@ public class ServerClient extends Thread {
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
                     this.handleMessages(inputLine);
-                    // Handle incoming messages from client as needed
+                    if (authTries > 4) {
+                        SysPrinter.println("SocketClient",
+                                "Client reached maximum auth tries (" + this.socket.getInetAddress() + ")");
+                        socket.close();
+                        this.clientList.remove(this);
+                    }
                 }
             } catch (SocketException e) {
-                SysPrinter.println("SocketClient", "Client disconnected (" + e.getMessage() + ")");
+                SysPrinter.println("SocketClient",
+                        "Client disconnected (" + this.socket.getInetAddress() + ")(" + e.getMessage() + ")");
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -63,7 +70,18 @@ public class ServerClient extends Thread {
                     SysPrinter.println("ServerClient", "exec command from " + this.socket.getInetAddress());
                     break;
                 case "auth":
-                    SysPrinter.println("ServerClient", "Client send auth request " + this.socket.getInetAddress());
+                    SysPrinter.println("ServerClient", "Client sent auth request " + this.socket.getInetAddress());
+                    User user = new User();
+
+                    boolean auth = user.auth(jsonObject.getString("username"), jsonObject.getString("password"));
+
+                    SysPrinter.println("ServerClient",
+                            "Auth " + (auth
+                                    ? "succeed!"
+                                    : "failed!"));
+                    if (!auth) {
+                        authTries++;
+                    }
                     break;
 
                 default:
