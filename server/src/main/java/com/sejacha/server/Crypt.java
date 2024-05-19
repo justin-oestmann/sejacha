@@ -1,136 +1,93 @@
 package com.sejacha.server;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.*;
-import java.util.Arrays;
-import java.util.Base64;
 
+/**
+ * Eine Klasse, die verschiedene kryptografische Funktionen implementiert.
+ */
 public class Crypt {
 
-    // Constants for password hashing
-    private static final String HASH_ALGORITHM = "SHA-512";
-    private static final int SALT_LENGTH = 16;
-
-    // Method to hash a password with a salt
-    public static String hashPassword(String password) throws NoSuchAlgorithmException {
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[SALT_LENGTH];
-        random.nextBytes(salt);
-
-        MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
-        digest.update(salt);
-        byte[] hashedPassword = digest.digest(password.getBytes());
-
-        byte[] saltedHash = new byte[salt.length + hashedPassword.length];
-        System.arraycopy(salt, 0, saltedHash, 0, salt.length);
-        System.arraycopy(hashedPassword, 0, saltedHash, salt.length, hashedPassword.length);
-
-        return Base64.getEncoder().encodeToString(saltedHash);
+    /**
+     * Vergleicht zwei Strings anhand ihres SHA-512-Hashwerts.
+     * 
+     * @param str1 Der erste String.
+     * @param str2 Der zweite String.
+     * @return true, wenn die Hashwerte der beiden Strings übereinstimmen, ansonsten
+     *         false.
+     */
+    public static boolean compareSHA512(String str1, String str2) {
+        String hash1 = calculateSHA512(str1);
+        String hash2 = calculateSHA512(str2);
+        return hash1.equals(hash2);
     }
 
-    // Method to verify a password against a stored hash
-    public static boolean verifyPassword(String password, String storedHash) throws NoSuchAlgorithmException {
-        byte[] saltedHash = Base64.getDecoder().decode(storedHash);
-        byte[] salt = Arrays.copyOfRange(saltedHash, 0, SALT_LENGTH);
-        byte[] storedPasswordHash = Arrays.copyOfRange(saltedHash, SALT_LENGTH, saltedHash.length);
-
-        MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
-        digest.update(salt);
-        byte[] hashedPassword = digest.digest(password.getBytes());
-
-        return Arrays.equals(storedPasswordHash, hashedPassword);
+    /**
+     * Berechnet den SHA-512-Hashwert eines Strings.
+     * 
+     * @param input Der Eingabestring.
+     * @return Der SHA-512-Hashwert des Eingabestrings als Hexadezimalzeichenfolge.
+     */
+    public static String calculateSHA512(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            byte[] hashBytes = md.digest(input.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte hashByte : hashBytes) {
+                String hex = Integer.toHexString(0xff & hashByte);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    // Constants for end-to-end encryption
-    private static final String ENCRYPTION_ALGORITHM = "AES";
-
-    // Method to generate a new AES key
-    public static SecretKey generateKey() throws NoSuchAlgorithmException {
-        KeyGenerator keyGen = KeyGenerator.getInstance(ENCRYPTION_ALGORITHM);
-        keyGen.init(256);
-        return keyGen.generateKey();
+    /**
+     * Verschlüsselt einen String mit einem öffentlichen Schlüssel.
+     * 
+     * @param input     Der zu verschlüsselnde String.
+     * @param publicKey Der öffentliche Schlüssel.
+     * @return Der verschlüsselte String.
+     */
+    public static byte[] encryptWithPublicKey(String input, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return cipher.doFinal(input.getBytes());
     }
 
-    // Method to encrypt a string with a given AES key
-    public static String encrypt(String data, SecretKey key) throws Exception {
-        Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        byte[] encryptedData = cipher.doFinal(data.getBytes());
-        return Base64.getEncoder().encodeToString(encryptedData);
+    /**
+     * Entschlüsselt einen verschlüsselten String mit einem privaten Schlüssel.
+     * 
+     * @param encryptedData Die verschlüsselten Daten.
+     * @param privateKey    Der private Schlüssel.
+     * @return Der entschlüsselte String.
+     */
+    public static String decryptWithPrivateKey(byte[] encryptedData, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decryptedBytes = cipher.doFinal(encryptedData);
+        return new String(decryptedBytes);
     }
 
-    // Method to decrypt a string with a given AES key
-    public static String decrypt(String encryptedData, SecretKey key) throws Exception {
-        Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        byte[] decryptedData = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
-        return new String(decryptedData);
-    }
-
-    // RSA key pair generation
-    public static KeyPair generateRSAKeyPair() throws NoSuchAlgorithmException {
+    /**
+     * Generiert ein Schlüsselpaar für asymmetrische Verschlüsselung.
+     * 
+     * @return Ein KeyPair-Objekt mit einem öffentlichen und einem privaten
+     *         Schlüssel.
+     */
+    public static KeyPair generateKeyPair() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         return keyGen.generateKeyPair();
     }
-
-    // Encrypt the AES key with the RSA public key
-    public static String encryptKey(SecretKey aesKey, PublicKey publicKey) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        byte[] encryptedKey = cipher.doFinal(aesKey.getEncoded());
-        return Base64.getEncoder().encodeToString(encryptedKey);
-    }
-
-    // Decrypt the AES key with the RSA private key
-    public static SecretKey decryptKey(String encryptedKey, PrivateKey privateKey) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        byte[] decodedKey = Base64.getDecoder().decode(encryptedKey);
-        byte[] decryptedKey = cipher.doFinal(decodedKey);
-        return new SecretKeySpec(decryptedKey, ENCRYPTION_ALGORITHM);
-    }
-
-    /*
-     * public static void main(String[] args) {
-     * try {
-     * // Test password hashing and verification
-     * String password = "mySecurePassword";
-     * String hashedPassword = hashPassword(password);
-     * System.out.println("Hashed Password: " + hashedPassword);
-     * System.out.println("Password Verified: " + verifyPassword(password,
-     * hashedPassword));
-     * 
-     * // Test end-to-end encryption with key exchange
-     * String message = "This is a secret message.";
-     * 
-     * // Generate AES key
-     * SecretKey aesKey = generateKey();
-     * 
-     * // Generate RSA key pair for the receiver
-     * KeyPair rsaKeyPair = generateRSAKeyPair();
-     * 
-     * // Encrypt the AES key with the receiver's public RSA key
-     * String encryptedKey = encryptKey(aesKey, rsaKeyPair.getPublic());
-     * 
-     * // The receiver decrypts the AES key with their private RSA key
-     * SecretKey decryptedAesKey = decryptKey(encryptedKey,
-     * rsaKeyPair.getPrivate());
-     * 
-     * // Encrypt and decrypt the message using the decrypted AES key
-     * String encryptedMessage = encrypt(message, decryptedAesKey);
-     * String decryptedMessage = decrypt(encryptedMessage, decryptedAesKey);
-     * 
-     * System.out.println("Original Message: " + message);
-     * System.out.println("Encrypted Message: " + encryptedMessage);
-     * System.out.println("Decrypted Message: " + decryptedMessage);
-     * 
-     * } catch (Exception e) {
-     * e.printStackTrace();
-     * }
-     * }
-     */
 }
