@@ -15,28 +15,20 @@ public class User {
     private Boolean state;
     private Boolean auth;
 
-    public boolean auth(String username, String passwordHash) throws Exception {
+    public User() {
 
-        String query = "SELECT * FROM users WHERE user_name = ? AND user_password = ?";
-        PreparedStatement stmt = Database.getConnection().prepareStatement(query);
+    }
 
-        stmt.setString(1, username);
-        stmt.setString(2, passwordHash);
+    public boolean login(String email, String password) {
 
-        ResultSet rs = stmt.executeQuery();
+    }
 
-        if (rs.next() && rs.getString("user_name") == username && rs.getString("user_password") == passwordHash) {
-            this.auth = true;
-            // return true;
-        } else {
-            // return false;
-        }
+    public boolean login(String loginToken) {
 
-        // SysPrinter.println("info!", rs.getString("user_name"));
-        // SysPrinter.println("info!", rs.getString("user_password"));
-        // SysPrinter.println("info!", passwordHash);
+    }
 
-        return false;
+    public boolean register() {
+
     }
 
 }
