@@ -23,9 +23,9 @@ public class Database {
                 // Verbindung zur Datenbank herstellen
                 connection = DriverManager.getConnection(url, Config.getConfig("mysql.user"),
                         Config.getConfig("mysql.password"));
-                System.out.println("Verbindung zur MySQL-Datenbank hergestellt");
+                SysPrinter.println("MYSQL-Database", "Connected to database!");
             } catch (SQLException e) {
-                System.err.println("Fehler beim Verbinden mit der Datenbank: " + e.getMessage());
+                SysPrinter.println("MYSQL-Database", "Error while connecting to database: " + e.getMessage());
             }
         }
         return connection;
@@ -36,9 +36,10 @@ public class Database {
         if (connection != null) {
             try {
                 connection.close();
-                System.out.println("Verbindung zur MySQL-Datenbank geschlossen");
+                SysPrinter.println("MYSQL-Database", "Disconnected from database");
             } catch (SQLException e) {
-                System.err.println("Fehler beim Schließen der Datenbankverbindung: " + e.getMessage());
+                SysPrinter.println("MYSQL-Database",
+                        "Error while closing connection to database: " + e.getMessage());
             } finally {
                 connection = null; // Setze die Connection-Referenz zurück
             }
