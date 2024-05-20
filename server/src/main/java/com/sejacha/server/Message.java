@@ -12,7 +12,9 @@ public class Message {
     private String id;
     private String user_id;
     private String room_id;
-    private String message;
+    private String text;
+    private String attachment;
+    private boolean is_read;
     private LocalDateTime timestamp;
 
     public Message() {
