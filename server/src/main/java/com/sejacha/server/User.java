@@ -14,6 +14,7 @@ public class User {
     private String password;
     private Boolean state;
     private Boolean auth;
+    private String authKey;
 
     public User() {
 
@@ -29,6 +30,17 @@ public class User {
 
     public boolean register() {
 
+    }
+
+    private String generateAuthKey() throws Exception {
+        if (this.authKey != null) {
+            throw new Exception("Authkey already generated!");
+        }
+        return this.authKey = RandomString.generate(32);
+    }
+
+    private boolean checkAuthKey(String authKey) {
+        return this.authKey.equals(authKey);
     }
 
 }
