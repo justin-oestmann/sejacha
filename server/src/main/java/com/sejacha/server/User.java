@@ -27,14 +27,15 @@ public class User {
     public boolean login(String email, String password) {
 
         try {
-            PreparedStatement statement = Database.getConnection()
-                    .prepareStatement("SELECT * FROM users WHERE user_email =? AND user_password =?");
+            PreparedStatement statement = Database.getConnection().prepareStatement(
+                "SELECT * FROM users WHERE user_email =? AND user_password =?");
             statement.setString(1, email);
             statement.setString(2, password);
             ResultSet result = statement.executeQuery();
 
-            if (result.next() && result.getString("user_email") == email
-                    && result.getString("user_password") == password) {
+            if (result.next() 
+            && result.getString("user_email") == email
+            && result.getString("user_password") == password) {
                 this.id = result.getString("id");
                 this.name = result.getString("name");
                 this.email = result.getString("email");
@@ -48,8 +49,9 @@ public class User {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
+
 
     }
 
@@ -58,8 +60,56 @@ public class User {
         return false;
     }
 
-    public boolean register() {
-        return true;
+    /**
+     * 
+     */
+    public boolean register( ) throws Exception{
+
+        try {
+            PreparedStatement mail_name_check = Database.getConnection().prepareStatement(
+                    "SELECT * FROM users WHERE user_email =? OR user_name =?");
+            mail_name_check.setString(1, email);
+            mail_name_check.setString(2, name);
+            ResultSet result = mail_name_check.executeQuery();
+
+            boolean testbool = false;
+            while (testbool == false) {
+                // neue uid zuweisen und checken ob existiert -> als funktion in database
+                // asuulagern
+                id = RandomString.generate(11);
+                PreparedStatement uid_check = Database.getConnection().prepareStatement(
+                        "SELECT user_id FROM users WHERE user_id =?");
+                uid_check.setString(1, id);
+                ResultSet uid_check_result = uid_check.executeQuery();
+                 if (uid_check_result.next() == true) {
+                    testbool = true;
+                 }
+            }
+            
+            try{
+            if (result.next() == false) {
+                PreparedStatement statement2 = Database.getConnection().prepareStatement(
+                    "INSERT INTO users (user_id, user_name, user_email, user_password) VALUES (?,?,?,?)");
+                statement2.setString(1,id);    
+                statement2.setString(1,name);
+                statement2.setString(2,email);
+                statement2.setString(3,password);
+                statement2.executeUpdate();
+                return true;
+                
+            }else{
+                throw new Exception("Email or Username already exists");
+            }
+
+            } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } 
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private String generateAuthKey() throws Exception {
