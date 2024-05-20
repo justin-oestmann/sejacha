@@ -15,7 +15,6 @@ public class User {
     private String password;
     private LocalDateTime password_changed;
     private Boolean state;
-    private LocalDateTime created_at;
     private LocalDateTime updated_at;
     private Boolean auth;
     private String authKey;
@@ -96,7 +95,7 @@ public class User {
                 statement2.setString(3,password);
                 statement2.executeUpdate();
                 return true;
-                
+
             }else{
                 throw new Exception("Email or Username already exists");
             }
