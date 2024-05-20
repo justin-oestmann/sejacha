@@ -12,6 +12,7 @@ public class ServerClient extends Thread {
     private PrintWriter out;
     private BufferedReader in;
     private int authTries = 0;
+    private User user;
 
     public ServerClient(Socket socket, List<ServerClient> clientList) {
         this.socket = socket;
@@ -71,17 +72,9 @@ public class ServerClient extends Thread {
                     break;
                 case "auth":
                     SysPrinter.println("ServerClient", "Client sent auth request " + this.socket.getInetAddress());
-                    User user = new User();
+                    this.user = new User();
+                    user.login(jsonObject.getString("username"), jsonObject.getString("password"));
 
-                    boolean auth = user.auth(jsonObject.getString("username"), jsonObject.getString("password"));
-
-                    SysPrinter.println("ServerClient",
-                            "Auth " + (auth
-                                    ? "succeed!"
-                                    : "failed!"));
-                    if (!auth) {
-                        authTries++;
-                    }
                     break;
 
                 default:
