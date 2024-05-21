@@ -14,7 +14,7 @@ public class User {
     private String email;
     private String password;
     private String password_update;
-    private String password_changed;
+    private String password_changed_at;
     private int state;
     private LocalDateTime updated_at;
     private Boolean auth;
@@ -92,7 +92,7 @@ public class User {
                 insert_Statement.setString(1, id);
                 insert_Statement.setString(2, name);
                 insert_Statement.setString(3, email);
-                insert_Statement.setString(4, password_update);
+                insert_Statement.setString(4, password);
                 // state muss nicht auf != 1 gesetzt werden da es automatisch in der db
                 // passiert.
                 insert_Statement.executeUpdate();
@@ -132,9 +132,9 @@ public class User {
             ResultSet result = check_pw.executeQuery();
 
             if (result.next()) {
-                password_changed = LocalDateTime.now().toString();
+                password_changed_at = LocalDateTime.now().toString();
                 update_pw.setString(1, password);
-                update_pw.setString(2, password_changed);
+                update_pw.setString(2, password_changed_at);
                 update_pw.setString(3, email);
                 update_pw.executeUpdate();
                 return true;
