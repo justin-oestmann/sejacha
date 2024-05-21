@@ -2,6 +2,8 @@ package com.sejacha.server;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Database {
@@ -43,6 +45,32 @@ public class Database {
             } finally {
                 connection = null; // Setze die Connection-Referenz zurück
             }
+        }
+    }
+
+
+    public static String getUniqueID() {
+        boolean isUnique = false;
+        String userID = null;
+
+        try {
+        PreparedStatement uid_check = Database.getConnection().prepareStatement(
+                        "SELECT user_id FROM users WHERE user_id =?");
+
+        while (!isUnique) {
+                // neue uid zuweisen und checken ob existiert
+                userID = RandomString.generate(11);
+                uid_check.setString(1, userID);
+                ResultSet uid_check_result = uid_check.executeQuery();
+                if (!uid_check_result.next()) {
+                    isUnique = true;
+                }
+            }
+            return userID;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return userID = null; //sollte nie passieren ig und das sollte von db abgefangen werden 
         }
     }
 }
