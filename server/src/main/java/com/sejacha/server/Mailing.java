@@ -25,7 +25,7 @@ public class Mailing {
     public Mailing() {
     }
 
-    public void sendEmail(String to, String subject, String body) throws MessagingException {
+    public static void sendEmail(String to, String subject, String body) throws MessagingException {
         // Set up the SMTP server properties
         Properties properties = new Properties();
         properties.put("mail.smtp.host", Config.getConfig("email.smtp.host"));
@@ -54,16 +54,4 @@ public class Mailing {
         Transport.send(message);
     }
 
-    // public static void main(String[] args) {
-    // // Example usage
-
-    // Mailing emailSender = new Mailing();
-
-    // try {
-    // emailSender.sendEmail("recipient@example.com", "Test Subject", "Test Body");
-    // System.out.println("Email sent successfully.");
-    // } catch (MessagingException e) {
-    // e.printStackTrace();
-    // }
-    // }
 }
