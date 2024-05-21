@@ -19,6 +19,8 @@ public class User {
     private Boolean auth;
     private String authKey;
 
+    private String verificationCode;
+
     public User() {
         this.auth = false;
 
@@ -45,25 +47,26 @@ public class User {
                     }
                     this.auth = true;
                     return true;
-                } else {
-                    this.auth = false;
-                    return false;
                 }
+                this.auth = false;
+                return false;
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
-    //muss getestet werden + nicht fertig
+
+    // muss getestet werden + nicht fertig
     public boolean login(String loginToken) {
         if (checkAuthKey(loginToken)) {
             this.auth = true;
             return true;
-        }else{
-             this.auth = false;
-             return false;
         }
+        this.auth = false;
+        return false;
+
     }
 
     // muss getestet werden
@@ -87,12 +90,12 @@ public class User {
                 insert_Statement.setString(2, name);
                 insert_Statement.setString(3, email);
                 insert_Statement.setString(4, password);
-                //state muss nicht auf != 1 gesetzt werden da es automatisch in der db passiert.
+                // state muss nicht auf != 1 gesetzt werden da es automatisch in der db
+                // passiert.
                 insert_Statement.executeUpdate();
                 return true;
-            } else {
-                throw new Exception("Email or Username already exists");
             }
+            throw new Exception("Email or Username already exists");
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -109,7 +112,7 @@ public class User {
 
     // muss getestet werden
     private boolean checkAuthKey(String authKey) {
-        //return this.authKey.equals(authKey);
+        // return this.authKey.equals(authKey);
         return this.authKey != null && this.authKey.equals(authKey);
     }
 
@@ -132,13 +135,28 @@ public class User {
                 update_pw.setString(3, email);
                 update_pw.executeUpdate();
                 return true;
-            } else {
-                return false;
             }
+
+            return false;
 
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private String sendPasswordResetVerificationCodeEmail() throws Exception {
+        if (this.email != null && !this.email.isEmpty()) {
+            throw new Exception("No email address set!");
+        }
+
+        try {
+            verificationCode = RandomString.generateNumberCode(6);
+            Mailing.sendEmail(this.email, "Verification Code for your SEJACHA-Account",
+                    "Your verification Code: " + this.verificationCode);
+            return this.verificationCode;
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }
