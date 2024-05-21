@@ -62,49 +62,39 @@ public class User {
     /**
      * 
      */
-    public boolean register( ) throws Exception{
+    public boolean register() throws Exception {
+        try (PreparedStatement mail_name_check = Database.getConnection().prepareStatement(
+                "SELECT * FROM users WHERE user_email =? OR user_name =?");
+                PreparedStatement uid_check = Database.getConnection().prepareStatement(
+                        "SELECT user_id FROM users WHERE user_id =?");
+                PreparedStatement statement2 = Database.getConnection().prepareStatement(
+                        "INSERT INTO users (user_id, user_name, user_email, user_password) VALUES (?,?,?,?)")) {
 
-        try {
-            PreparedStatement mail_name_check = Database.getConnection().prepareStatement(
-                    "SELECT * FROM users WHERE user_email =? OR user_name =?");
             mail_name_check.setString(1, email);
             mail_name_check.setString(2, name);
             ResultSet result = mail_name_check.executeQuery();
 
-            boolean testbool = false;
-            while (testbool == false) {
-                // neue uid zuweisen und checken ob existiert -> als funktion in database
-                // asuulagern
+            boolean isUnique = false;
+            while (!isUnique) {
+                // neue uid zuweisen und checken ob existiert
                 id = RandomString.generate(11);
-                PreparedStatement uid_check = Database.getConnection().prepareStatement(
-                        "SELECT user_id FROM users WHERE user_id =?");
                 uid_check.setString(1, id);
                 ResultSet uid_check_result = uid_check.executeQuery();
-                 if (uid_check_result.next() == true) {
-                    testbool = true;
-                 }
+                if (!uid_check_result.next()) {
+                    isUnique = true;
+                }
             }
-            
-            try{
-            if (result.next() == false) {
-                PreparedStatement statement2 = Database.getConnection().prepareStatement(
-                    "INSERT INTO users (user_id, user_name, user_email, user_password) VALUES (?,?,?,?)");
-                statement2.setString(1,id);    
-                statement2.setString(1,name);
-                statement2.setString(2,email);
-                statement2.setString(3,password);
+
+            if (!result.next()) {
+                statement2.setString(1, id);
+                statement2.setString(2, name);
+                statement2.setString(3, email);
+                statement2.setString(4, password);
                 statement2.executeUpdate();
                 return true;
-
-            }else{
+            } else {
                 throw new Exception("Email or Username already exists");
             }
-
-            } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        } 
-
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
