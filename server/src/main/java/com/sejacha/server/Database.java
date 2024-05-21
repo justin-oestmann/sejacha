@@ -1,8 +1,13 @@
 package com.sejacha.server;
 
+import java.lang.reflect.Executable;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import com.mysql.cj.xdevapi.PreparableStatement;
 
 public class Database {
     private static Connection connection;
@@ -44,5 +49,34 @@ public class Database {
                 connection = null; // Setze die Connection-Referenz zurück
             }
         }
+    }
+
+   
+    /**
+     * Überprüft, ob ein Wert in einer bestimmten row in einer Tabelle bereits existiert
+     * true = Duplikat / false = kein Duplikat
+     * @param value
+     * @param table
+     * @param row
+     * @return
+     * @throws Exception
+     */
+    public boolean checkDuplicate(String value, String table, String row) throws Exception{
+        try {
+            PreparedStatement statement = Database.getConnection().prepareStatement("SELECT ? FROM ? WHERE ?=?");
+            statement.setString(1, row);
+            statement.setString( 2, table);
+            statement.setString(3, row);
+            statement.setString(4, value);
+            ResultSet result = statement.executeQuery();
+
+            return result.next();
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return true;
     }
 }
