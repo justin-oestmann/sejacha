@@ -104,6 +104,7 @@ public class User {
             e.printStackTrace();
             return false;
         }
+        // sendEmailVerificationCode(); //unreachable code wird später gefixt wenn ich die ganze user klasse überarbeite
     }
 
     // muss getestet werden
@@ -179,5 +180,13 @@ public class User {
         }
 
         throw new Exception("InvalidVerifyToken");
+    }
+
+    public void setStatus() { //blocked user erstmal ausgelassen 
+        this.state = 0;
+        if (email_verified) {
+            this.state = 1;
+        }
+        
     }
 }
