@@ -41,25 +41,26 @@ public class User {
                     this.state = result.getBoolean("user_state");
                     this.auth = true;
                     return true;
-                } else {
-                    this.auth = false;
-                    return false;
                 }
+                this.auth = false;
+                return false;
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
-    //muss getestet werden + nicht fertig
+
+    // muss getestet werden + nicht fertig
     public boolean login(String loginToken) {
         if (checkAuthKey(loginToken)) {
             this.auth = true;
             return true;
-        }else{
-             this.auth = false;
-             return false;
         }
+        this.auth = false;
+        return false;
+
     }
 
     // muss getestet werden
@@ -96,9 +97,8 @@ public class User {
                 statement2.setString(4, password);
                 statement2.executeUpdate();
                 return true;
-            } else {
-                throw new Exception("Email or Username already exists");
             }
+            throw new Exception("Email or Username already exists");
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -115,7 +115,7 @@ public class User {
 
     // muss getestet werden
     private boolean checkAuthKey(String authKey) {
-        //return this.authKey.equals(authKey);
+        // return this.authKey.equals(authKey);
         return this.authKey != null && this.authKey.equals(authKey);
     }
 
@@ -138,13 +138,15 @@ public class User {
                 update_pw.setString(3, email);
                 update_pw.executeUpdate();
                 return true;
-            } else {
-                return false;
-            }
+            } 
+            
+            return false;
 
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
+    private String sendPasswordResetVerificationCodeEmail()
 }
