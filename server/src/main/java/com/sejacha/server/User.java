@@ -14,6 +14,7 @@ public class User {
     private String email;
     private String password;
     private String password_update;
+    private String changed_password;
     private String password_changed_at;
     private int state;
     private LocalDateTime updated_at;
@@ -120,7 +121,7 @@ public class User {
     }
 
     // muss getestet werden
-    private boolean passwordUpdate(String email, String password) throws Exception {
+    private boolean passwordUpdate(String email, String password, String changed_password) throws Exception {
         // email und password checken
         try (PreparedStatement check_pw = Database.getConnection().prepareStatement(
                 "SELECT * FROM users WHERE user_email =? AND user_password =?");
@@ -133,7 +134,7 @@ public class User {
 
             if (result.next()) {
                 password_changed_at = LocalDateTime.now().toString();
-                update_pw.setString(1, password);
+                update_pw.setString(1, changed_password);
                 update_pw.setString(2, password_changed_at);
                 update_pw.setString(3, email);
                 update_pw.executeUpdate();
