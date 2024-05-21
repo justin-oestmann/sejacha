@@ -14,7 +14,7 @@ public class User {
     private String email;
     private String password;
     private String password_changed;
-    private Boolean state;
+    private int state;
     private LocalDateTime updated_at;
     private Boolean auth;
     private String authKey;
@@ -25,7 +25,7 @@ public class User {
     }
 
     // muss getestet werden
-    public boolean login(String email, String password) {
+    public boolean login(String email, String password) throws Exception {
         try (PreparedStatement statement = Database.getConnection().prepareStatement(
                 "SELECT * FROM users WHERE user_email =? AND user_password =?")) {
             statement.setString(1, email);
@@ -38,7 +38,11 @@ public class User {
                     this.name = result.getString("user_name");
                     this.email = result.getString("user_email");
                     this.password = result.getString("user_password");
-                    this.state = result.getBoolean("user_state");
+                    this.state = result.getInt("user_state");
+                    if (this.state != 1) {
+                        this.auth = false;
+                        throw new Exception("Invalid user state");
+                    }
                     this.auth = true;
                     return true;
                 }
@@ -95,6 +99,7 @@ public class User {
                 statement2.setString(2, name);
                 statement2.setString(3, email);
                 statement2.setString(4, password);
+                //state muss nicht auf != 1 gesetzt werden da es automatisch in der db passiert.
                 statement2.executeUpdate();
                 return true;
             }
