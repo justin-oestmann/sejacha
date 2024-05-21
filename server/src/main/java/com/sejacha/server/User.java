@@ -19,7 +19,9 @@ public class User {
     private Boolean auth;
     private String authKey;
 
-    private String verificationCode;
+    private String email_verify_code;
+    private LocalDateTime email_verified_at;
+    private boolean email_verified;
 
     public User() {
         this.auth = false;
@@ -156,18 +158,35 @@ public class User {
         }
     }
 
-    private String sendPasswordResetVerificationCodeEmail() throws Exception {
+    private String sendEmailVerificationCode() throws Exception {
         if (this.email != null && !this.email.isEmpty()) {
             throw new Exception("No email address set!");
         }
+        if (this.email_verified) {
+            throw new Exception("Email-Address already verified!");
+        }
 
         try {
-            verificationCode = RandomString.generateNumberCode(6);
+            this.email_verify_code = RandomString.generateNumberCode(6);
             Mailing.sendEmail(this.email, "Verification Code for your SEJACHA-Account",
-                    "Your verification Code: " + this.verificationCode);
-            return this.verificationCode;
+                    "Your verification Code: " + this.email_verify_code);
+            return this.email_verify_code;
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        return null;
+    }
+
+    private boolean verifyEmailAddress(String code) throws Exception {
+        if (this.email_verified) {
+            throw new Exception("Email-Address already verified!");
+        }
+
+        if (this.email_verify_code.equals(code)) {
+            this.email_verified_at = LocalDateTime.now();
+            return true;
+        }
+
+        throw new Exception("InvalidVerifyToken");
     }
 }
