@@ -86,7 +86,7 @@ public class User {
             mail_name_check.setString(2, name);
             ResultSet result = mail_name_check.executeQuery();
 
-            id = Database.getUniqueID(); 
+            id = Database.getUniqueID("user"); 
 
             if (!result.next()) {
                 insert_Statement.setString(1, id);

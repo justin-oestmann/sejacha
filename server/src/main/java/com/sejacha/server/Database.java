@@ -80,16 +80,34 @@ public class Database {
 
     }
 
-    public static String getUniqueID() {
+    /**
+     * 
+     * @param DB input "user" or "room" for given id´s
+     * @return userID type String
+     * @throws Exception
+     */
+    public static String getUniqueID(String DB) throws Exception{
         boolean isUnique = false;
         String userID = null;
 
-        try {
-        PreparedStatement uid_check = Database.getConnection().prepareStatement(
-                        "SELECT user_id FROM users WHERE user_id =?");
+        PreparedStatement uid_check = null;
 
+        try {
+            switch (DB) {
+                case "user":
+                    uid_check = Database.getConnection().prepareStatement(
+                            "SELECT user_id FROM users WHERE user_id =?");
+                    break;
+                case "room":
+                    uid_check = Database.getConnection().prepareStatement(
+                            "SELECT user_id FROM users WHERE user_id =?");
+                    break;
+            
+                default:
+                    break;
+            }
+            
         while (!isUnique) {
-                // neue uid zuweisen und checken ob existiert
                 userID = RandomString.generate(11);
                 uid_check.setString(1, userID);
                 ResultSet uid_check_result = uid_check.executeQuery();
