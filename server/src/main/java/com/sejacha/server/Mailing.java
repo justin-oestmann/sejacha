@@ -54,16 +54,16 @@ public class Mailing {
         Transport.send(message);
     }
 
-    public static void main(String[] args) {
-        // Example usage
+    // public static void main(String[] args) {
+    // // Example usage
 
-        Mailing emailSender = new Mailing();
+    // Mailing emailSender = new Mailing();
 
-        try {
-            emailSender.sendEmail("recipient@example.com", "Test Subject", "Test Body");
-            System.out.println("Email sent successfully.");
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-    }
+    // try {
+    // emailSender.sendEmail("recipient@example.com", "Test Subject", "Test Body");
+    // System.out.println("Email sent successfully.");
+    // } catch (MessagingException e) {
+    // e.printStackTrace();
+    // }
+    // }
 }
