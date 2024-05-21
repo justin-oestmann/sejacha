@@ -73,33 +73,22 @@ public class User {
     public boolean register() throws Exception {
         try (PreparedStatement mail_name_check = Database.getConnection().prepareStatement(
                 "SELECT * FROM users WHERE user_email =? OR user_name =?");
-                PreparedStatement uid_check = Database.getConnection().prepareStatement(
-                        "SELECT user_id FROM users WHERE user_id =?");
-                PreparedStatement statement2 = Database.getConnection().prepareStatement(
+                PreparedStatement insert_Statement = Database.getConnection().prepareStatement(
                         "INSERT INTO users (user_id, user_name, user_email, user_password) VALUES (?,?,?,?)")) {
 
             mail_name_check.setString(1, email);
             mail_name_check.setString(2, name);
             ResultSet result = mail_name_check.executeQuery();
 
-            boolean isUnique = false;
-            while (!isUnique) {
-                // neue uid zuweisen und checken ob existiert
-                id = RandomString.generate(11);
-                uid_check.setString(1, id);
-                ResultSet uid_check_result = uid_check.executeQuery();
-                if (!uid_check_result.next()) {
-                    isUnique = true;
-                }
-            }
+            id = Database.getUniqueID(); 
 
             if (!result.next()) {
-                statement2.setString(1, id);
-                statement2.setString(2, name);
-                statement2.setString(3, email);
-                statement2.setString(4, password);
+                insert_Statement.setString(1, id);
+                insert_Statement.setString(2, name);
+                insert_Statement.setString(3, email);
+                insert_Statement.setString(4, password);
                 //state muss nicht auf != 1 gesetzt werden da es automatisch in der db passiert.
-                statement2.executeUpdate();
+                insert_Statement.executeUpdate();
                 return true;
             } else {
                 throw new Exception("Email or Username already exists");
