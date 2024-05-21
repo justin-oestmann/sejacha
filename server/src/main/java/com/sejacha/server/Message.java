@@ -76,7 +76,7 @@ public class Message {
      * @param message - String that contains the Message
      */
     public void setMessage(String message) {
-        this.message = message;
+        this.text = message;
     }
 
     /**
@@ -85,7 +85,7 @@ public class Message {
      * @return message
      */
     public String getMessage() {
-        return this.message;
+        return this.text;
     }
 
     /**
