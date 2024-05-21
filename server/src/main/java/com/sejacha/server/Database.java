@@ -75,9 +75,10 @@ public class Database {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
 
-        return true;
+    }
 
     public static String getUniqueID() {
         boolean isUnique = false;
