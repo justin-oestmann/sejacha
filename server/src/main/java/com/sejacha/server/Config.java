@@ -12,7 +12,7 @@ public class Config {
 
         try {
             input = new FileInputStream(
-                    "server\\src\\main\\java\\com\\sejacha\\server\\config.properties");
+                    ".\\config.properties");
             properties.load(input);
 
             return properties.getProperty(v);
