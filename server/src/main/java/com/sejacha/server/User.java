@@ -13,6 +13,7 @@ public class User {
     private String name;
     private String email;
     private String password;
+    private String password_update;
     private String password_changed;
     private int state;
     private LocalDateTime updated_at;
@@ -91,7 +92,7 @@ public class User {
                 insert_Statement.setString(1, id);
                 insert_Statement.setString(2, name);
                 insert_Statement.setString(3, email);
-                insert_Statement.setString(4, password);
+                insert_Statement.setString(4, password_update);
                 // state muss nicht auf != 1 gesetzt werden da es automatisch in der db
                 // passiert.
                 insert_Statement.executeUpdate();
