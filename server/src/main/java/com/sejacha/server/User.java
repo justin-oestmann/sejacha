@@ -20,9 +20,11 @@ public class User {
     private String authKey;
 
     public User() {
+        this.auth = false;
 
     }
 
+    // muss getestet werden
     public boolean login(String email, String password) {
         try (PreparedStatement statement = Database.getConnection().prepareStatement(
                 "SELECT * FROM users WHERE user_email =? AND user_password =?")) {
@@ -49,14 +51,20 @@ public class User {
             return false;
         }
     }
-
+    //muss getestet werden + nicht fertig
     public boolean login(String loginToken) {
-        SysPrinter.println("Baum", "NIX DA FIGG DICH");
-        return false;
+        if (checkAuthKey(loginToken)) {
+            this.auth = true;
+            return true;
+        }else{
+             this.auth = false;
+             return false;
+        }
     }
 
+    // muss getestet werden
     /**
-     * 
+     * test
      */
     public boolean register() throws Exception {
         try (PreparedStatement mail_name_check = Database.getConnection().prepareStatement(
@@ -97,6 +105,7 @@ public class User {
         }
     }
 
+    // muss getestet werden
     private String generateAuthKey() throws Exception {
         if (this.authKey != null) {
             throw new Exception("Authkey already generated!");
@@ -104,10 +113,13 @@ public class User {
         return this.authKey = RandomString.generate(32);
     }
 
+    // muss getestet werden
     private boolean checkAuthKey(String authKey) {
-        return this.authKey.equals(authKey);
+        //return this.authKey.equals(authKey);
+        return this.authKey != null && this.authKey.equals(authKey);
     }
 
+    // muss getestet werden
     private boolean passwordUpdate(String email, String password) throws Exception {
         // email und password checken
         try (PreparedStatement check_pw = Database.getConnection().prepareStatement(
