@@ -19,6 +19,8 @@ public class User {
     private Boolean auth;
     private String authKey;
 
+    private String verificationCode;
+
     public User() {
         this.auth = false;
 
@@ -99,7 +101,8 @@ public class User {
                 statement2.setString(2, name);
                 statement2.setString(3, email);
                 statement2.setString(4, password);
-                //state muss nicht auf != 1 gesetzt werden da es automatisch in der db passiert.
+                // state muss nicht auf != 1 gesetzt werden da es automatisch in der db
+                // passiert.
                 statement2.executeUpdate();
                 return true;
             }
@@ -143,8 +146,8 @@ public class User {
                 update_pw.setString(3, email);
                 update_pw.executeUpdate();
                 return true;
-            } 
-            
+            }
+
             return false;
 
         } catch (SQLException e) {
@@ -153,5 +156,18 @@ public class User {
         }
     }
 
-    private String sendPasswordResetVerificationCodeEmail()
+    private String sendPasswordResetVerificationCodeEmail() throws Exception {
+        if (this.email != null && !this.email.isEmpty()) {
+            throw new Exception("No email address set!");
+        }
+
+        try {
+            verificationCode = RandomString.generateNumberCode(6);
+            Mailing.sendEmail(this.email, "Verification Code for your SEJACHA-Account",
+                    "Your verification Code: " + this.verificationCode);
+            return this.verificationCode;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }
