@@ -76,7 +76,7 @@ public class Message {
      * @param message - String that contains the Message
      */
     public void setMessage(String message) {
-        this.message = message;
+        this.text = message;
     }
 
     /**
@@ -85,7 +85,7 @@ public class Message {
      * @return message
      */
     public String getMessage() {
-        return this.message;
+        return this.text;
     }
 
     /**
@@ -130,7 +130,7 @@ public class Message {
             throw new Exception("timestamp not set!");
         }
 
-        if (this.message == null) {
+        if (this.text == null) {
             throw new Exception("message not set!");
         }
 
@@ -141,7 +141,7 @@ public class Message {
         stmt.setString(2, this.user_id);
         stmt.setString(3, this.room_id);
         stmt.setString(4, this.timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        stmt.setString(5, this.message);
+        stmt.setString(5, this.text);
 
         ResultSet rs = stmt.executeQuery();
         return rs.rowInserted();
