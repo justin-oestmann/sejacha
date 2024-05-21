@@ -13,7 +13,7 @@ public class User {
     private String name;
     private String email;
     private String password;
-    private LocalDateTime password_changed;
+    private String password_changed;
     private Boolean state;
     private LocalDateTime updated_at;
     private Boolean auth;
@@ -122,4 +122,31 @@ public class User {
         return this.authKey.equals(authKey);
     }
 
+    private boolean passwordUpdate(String email, String password) throws Exception {
+        // email und password checken
+        try (PreparedStatement check_pw = Database.getConnection().prepareStatement(
+                "SELECT * FROM users WHERE user_email =? AND user_password =?");
+                PreparedStatement update_pw = Database.getConnection().prepareStatement(
+                        "UPDATE users SET user_password =?, user_password_changed =? WHERE user_email =?")) {
+
+            check_pw.setString(1, email);
+            check_pw.setString(2, password);
+            ResultSet result = check_pw.executeQuery();
+
+            if (result.next()) {
+                password_changed = LocalDateTime.now().toString();
+                update_pw.setString(1, password);
+                update_pw.setString(2, password_changed);
+                update_pw.setString(3, email);
+                update_pw.executeUpdate();
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
