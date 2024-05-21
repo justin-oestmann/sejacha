@@ -30,6 +30,16 @@
   - [ ] verifyEmailAddress(code)
     - check if code is set, and code equals the saved code in db
 
+### Features
+
 ## ClientSide
 
+### Classes
+
+### Features
+
 ## Global
+
+### Features
+
+### Others
