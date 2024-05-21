@@ -98,6 +98,7 @@ public class User {
                 statement2.setString(2, name);
                 statement2.setString(3, email);
                 statement2.setString(4, password);
+                //state muss nicht auf != 1 gesetzt werden da es automatisch in der db passiert.
                 statement2.executeUpdate();
                 return true;
             } else {
