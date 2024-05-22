@@ -100,7 +100,7 @@ public class ChatHandler {
                     handleLogin(scanner);
                     break;
                 case "register":
-                    handleRegister();
+                    handleRegister(scanner);
                     break;
                 default:
                     System.out.println("Unknown command. Type '/help room' for a list of available commands.");
@@ -279,7 +279,34 @@ public class ChatHandler {
         }
     }
 
-    private void handleRegister() {
+    private void handleRegister(Scanner scanner) {
+        System.out.print("Enter username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine();
 
+        String checkQuery = "SELECT username FROM users WHERE username = ?";
+        String insertQuery = "INSERT INTO users (username, password) VALUES (?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/" + config.getProperty("mysql.database"),
+                config.getProperty("mysql.user"), config.getProperty("mysql.password"));
+             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+             PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+
+            checkStmt.setString(1, username);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next()) {
+                    System.out.println("Username already exists. Please choose another username.");
+                } else {
+                    insertStmt.setString(1, username);
+                    insertStmt.setString(2, password);
+                    insertStmt.executeUpdate();
+                    System.out.println("Registration successful! You can now log in.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
