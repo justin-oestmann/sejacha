@@ -1,11 +1,14 @@
 package com.sejacha.client;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
+import java.sql.*;
 
-//region Room Class
 class Room {
     private int id;
     private String name;
@@ -47,26 +50,38 @@ class Room {
         return timestamp;
     }
 }
-//endregion
 
-//region Main Handler for chat commands
 public class ChatHandler {
-    private String[] commands = { "room", "help", "login", "register" };
+    private String[] commands = {"room", "help", "login", "register"};
     private String[] subCommands = {"create", "join", "delete", "help"};
     private List<Room> rooms = new ArrayList<>();
     private int nextRoomId = 1;
+    private String currentUser = null;
+    private boolean isAdmin = false;
+    private Properties config;
 
     public static void main(String[] args) {
         ChatHandler chatHandler = new ChatHandler();
+        chatHandler.loadConfig("server/config.properties");
         chatHandler.run();
     }
-    //region Main loop to process inputs and execute commands
+
+    public void loadConfig(String configFilePath) {
+        config = new Properties();
+        try (FileInputStream fis = new FileInputStream(configFilePath)) {
+            config.load(fis);
+        } catch (IOException e) {
+            System.err.println("Error loading config file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public void run() {
         Scanner scanner = new Scanner(System.in);
         String input;
 
         System.out.println(
-                "Willkommen! Geben Sie einen Befehl zum Fortfahren ein. Mit '/help' erhalten Sie eine Übersicht aller Befehle.");
+                "Welcome! Please input a command to continue. Type '/help room' for a list of available commands.");
 
         while (true) {
             System.out.print("> ");
@@ -82,21 +97,18 @@ public class ChatHandler {
                     handleHelp();
                     break;
                 case "login":
-                    handleLogin();
+                    handleLogin(scanner);
                     break;
                 case "register":
                     handleRegister();
                     break;
                 default:
-                    System.out.println("Unbekannter Befehl. Geben Sie '/help' ein, um eine Liste der verfügbaren Befehle zu sehen.");
+                    System.out.println("Unknown command. Type '/help room' for a list of available commands.");
                     break;
             }
         }
     }
-    //endregion
-//endregion
 
-    //region Loop for room-related commands
     private void handleRoom(String[] inputParts, Scanner scanner) {
         if (inputParts.length < 2) {
             System.out.println("Incorrect usage of the command. Type '/help room' for a list of available commands.");
@@ -135,9 +147,7 @@ public class ChatHandler {
                 break;
         }
     }
-    //endregion
 
-    //region Room-related commands
     private void handleRoomCreate(String[] inputParts) {
         if (inputParts.length < 4) {
             System.out.println("Usage: /room create <name> <password> [type]");
@@ -145,9 +155,9 @@ public class ChatHandler {
         }
 
         String roomName = inputParts[2];
-        String owner = currentUser;  // Set the owner to the currently logged-in user
+        String owner = currentUser;
         String password = inputParts[3];
-        int type = 0;  // Default to public
+        int type = 0;
 
         if (inputParts.length >= 5) {
             try {
@@ -162,7 +172,6 @@ public class ChatHandler {
             }
         }
 
-        // If type is private (1), password must be provided
         if (type == 1 && password.isEmpty()) {
             System.out.println("Password is required for a private room.");
             return;
@@ -187,7 +196,7 @@ public class ChatHandler {
         }
         for (Room room : rooms) {
             if (room.getName().equalsIgnoreCase(roomName)) {
-                if (room.getType() == 1) {  // Private room
+                if (room.getType() == 1) {
                     System.out.print("This room is private. Please enter the password: ");
                     String enteredPassword = scanner.nextLine();
                     if (room.getPassword().equals(enteredPassword)) {
@@ -195,7 +204,7 @@ public class ChatHandler {
                     } else {
                         System.out.println("Incorrect password. Access denied.");
                     }
-                } else {  // Public room
+                } else {
                     System.out.println("You have joined the public room '" + roomName + "' with ID " + room.getId() + "!");
                 }
                 return;
@@ -222,9 +231,7 @@ public class ChatHandler {
         }
         System.out.println("Room '" + roomName + "' not found.");
     }
-    //endregion 
 
-    //region Help command
     private void handleRoomHelp() {
         System.out.println("Verfügbare Befehle:");
         for (String subCommand : subCommands) {
@@ -238,17 +245,41 @@ public class ChatHandler {
             System.out.println(" - " + command);
         }
     }
-    //endregion
 
-    //TODO Login
-    private void handleLogin() {
-    
+    private void handleLogin(Scanner scanner) {
+        System.out.print("Enter username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine();
+
+        String query = "SELECT password, isAdmin FROM users WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/" + config.getProperty("mysql.database"),
+                config.getProperty("mysql.user"), config.getProperty("mysql.password"));
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String dbPassword = rs.getString("password");
+                    boolean dbIsAdmin = rs.getBoolean("isAdmin");
+                    if (password.equals(dbPassword)) {
+                        currentUser = username;
+                        isAdmin = dbIsAdmin;
+                        System.out.println("Login successful. Welcome, " + username + "!");
+                    } else {
+                        System.out.println("Incorrect password. Please try again.");
+                    }
+                } else {
+                    System.out.println("Username not found. Please register first.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    //TODO Register
     private void handleRegister() {
 
     }
 }
-
-    //TODO Admin einpflegen und CurrentUser
