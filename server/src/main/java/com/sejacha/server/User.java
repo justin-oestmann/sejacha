@@ -1,192 +1,145 @@
 
 package com.sejacha.server;
 
+//import com.sejacha.server.exceptions.*;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Random;
+
+import javax.mail.MessagingException;
+
+import com.sejacha.server.exceptions.UserInvalidStateException;
+import com.sejacha.server.exceptions.UserNoVerifyCodeExists;
 
 public class User {
 
     private String id;
     private String name;
     private String email;
-    private String password;
-    private String password_update;
-    private String changed_password;
-    private String password_changed_at;
-    private int state;
-    private LocalDateTime updated_at;
-    private Boolean auth;
-    private String authKey;
 
-    private String email_verify_code;
-    private LocalDateTime email_verified_at;
-    private boolean email_verified;
+    private String password;
+    private LocalDateTime password_changed_at;
+
+    private UserState state;
+
+    private LocalDateTime user_updated_at;
+
+    private String verify_code;
+    private LocalDateTime verified_at;
+
+    private String authKey = null; // ONLY LOCAL!!!
 
     public User() {
-        this.auth = false;
 
     }
 
-    // muss getestet werden
-    public boolean login(String email, String password) throws Exception {
-        try (PreparedStatement statement = Database.getConnection().prepareStatement(
-                "SELECT * FROM users WHERE user_email =? AND user_password =?")) {
-            statement.setString(1, email);
-            statement.setString(2, password);
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()
-                        && email.equals(result.getString("user_email"))
-                        && password.equals(result.getString("user_password"))) {
-                    this.id = result.getString("user_id");
-                    this.name = result.getString("user_name");
-                    this.email = result.getString("user_email");
-                    this.password = result.getString("user_password");
-                    this.state = result.getInt("user_state");
-                    if (this.state != 1) {
-                        this.auth = false;
-                        throw new Exception("Invalid user state");
-                    }
-                    this.auth = true;
-                    return true;
-                }
-                this.auth = false;
-                return false;
+    public User(String id) {
+        this.loadByID(id);
+    }
 
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+    public boolean loadByID(String id) {
+        // TODO: LOAD-FUNCTION
+    }
+
+    public boolean loadByEmail(String email) {
+        // TODO: LOAD FUNCTION
+    }
+
+    public boolean save() {
+        // TODO: SAVE-FUNCTION
+    }
+
+    public boolean create() {
+        // TODO: CREATE-FUNCTION
+    }
+
+    public void login(String email, String password) {
+        // TODO: LOGIN FUNCTION
+    }
+
+    public String getID() {
+        return this.id;
+    }
+
+    private void setID(String id) {
+        this.id = id;
+        this.user_updated_at = LocalDateTime.now();
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        this.user_updated_at = LocalDateTime.now();
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+        this.user_updated_at = LocalDateTime.now();
+    }
+
+    private String getPasswordHash() {
+        return this.password;
+    }
+
+    public void setPasswordHash(String password_hash) {
+        this.password = password_hash;
+        this.password_changed_at = LocalDateTime.now();
+    }
+
+    public LocalDateTime getPasswordChangedAt() {
+        return this.password_changed_at;
+    }
+
+    public void sendVerificationCode() throws UserInvalidStateException, MessagingException {
+        if (this.state != UserState.UNVERIFIED) {
+            throw new UserInvalidStateException("user is not in the right state!");
         }
+
+        this.authKey = RandomString.generateNumberCode(6);
+        Mailing.sendEmail(this.getEmail(), Language.getText(LanguageText.EMAIL_VERIFY_SUBJECT), this.authKey);
+        return;
+
     }
 
-    // muss getestet werden + nicht fertig
-    public boolean login(String loginToken) {
-        if (checkAuthKey(loginToken)) {
-            this.auth = true;
+    public boolean verifyAccount(String codeString) throws UserInvalidStateException {
+        if (this.state != UserState.UNVERIFIED) {
+            throw new UserInvalidStateException("user is not in the right state!");
+        }
+
+        if (this.verify_code.equals(codeString)) {
+            this.state = UserState.VERIFIED;
+            this.verified_at = LocalDateTime.now();
             return true;
         }
-        this.auth = false;
+
         return false;
-
     }
 
-    // muss getestet werden
-    /**
-     * test
-     */
-    public boolean register() throws Exception {
-        try (PreparedStatement mail_name_check = Database.getConnection().prepareStatement(
-                "SELECT * FROM users WHERE user_email =? OR user_name =?");
-                PreparedStatement insert_Statement = Database.getConnection().prepareStatement(
-                        "INSERT INTO users (user_id, user_name, user_email, user_password) VALUES (?,?,?,?)")) {
-
-            mail_name_check.setString(1, email);
-            mail_name_check.setString(2, name);
-            ResultSet result = mail_name_check.executeQuery();
-
-            id = Database.getUniqueID("user"); 
-
-            if (!result.next()) {
-                insert_Statement.setString(1, id);
-                insert_Statement.setString(2, name);
-                insert_Statement.setString(3, email);
-                insert_Statement.setString(4, password);
-                // state muss nicht auf != 1 gesetzt werden da es automatisch in der db
-                // passiert.
-                insert_Statement.executeUpdate();
-                return true;
-            }
-            throw new Exception("Email or Username already exists");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+    public boolean verifyAuthKey(String codeString) throws UserNoVerifyCodeExists {
+        if (this.authKey == null) {
+            throw new UserNoVerifyCodeExists("authkey is null");
         }
-        // sendEmailVerificationCode(); //unreachable code wird später gefixt wenn ich die ganze user klasse überarbeite
+
+        if (this.authKey.equals(codeString)) {
+            return true;
+        }
+
+        return false;
     }
 
-    // muss getestet werden
-    private String generateAuthKey() throws Exception {
-        if (this.authKey != null) {
-            throw new Exception("Authkey already generated!");
-        }
+    public String generateAuthKey() {
         return this.authKey = RandomString.generate(32);
     }
 
-    // muss getestet werden
-    private boolean checkAuthKey(String authKey) {
-        // return this.authKey.equals(authKey);
-        return this.authKey != null && this.authKey.equals(authKey);
-    }
-
-    // muss getestet werden
-    private boolean passwordUpdate(String email, String password, String changed_password) throws Exception {
-        // email und password checken
-        try (PreparedStatement check_pw = Database.getConnection().prepareStatement(
-                "SELECT * FROM users WHERE user_email =? AND user_password =?");
-                PreparedStatement update_pw = Database.getConnection().prepareStatement(
-                        "UPDATE users SET user_password =?, user_password_changed =? WHERE user_email =?")) {
-
-            check_pw.setString(1, email);
-            check_pw.setString(2, password);
-            ResultSet result = check_pw.executeQuery();
-
-            if (result.next()) {
-                password_changed_at = LocalDateTime.now().toString();
-                update_pw.setString(1, changed_password);
-                update_pw.setString(2, password_changed_at);
-                update_pw.setString(3, email);
-                update_pw.executeUpdate();
-                return true;
-            }
-
-            return false;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private String sendEmailVerificationCode() throws Exception {
-        if (this.email != null && !this.email.isEmpty()) {
-            throw new Exception("No email address set!");
-        }
-        if (this.email_verified) {
-            throw new Exception("Email-Address already verified!");
-        }
-
-        try {
-            this.email_verify_code = RandomString.generateNumberCode(6);
-            Mailing.sendEmail(this.email, "Verification Code for your SEJACHA-Account",
-                    "Your verification Code: " + this.email_verify_code);
-            return this.email_verify_code;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
-    private boolean verifyEmailAddress(String code) throws Exception {
-        if (this.email_verified) {
-            throw new Exception("Email-Address already verified!");
-        }
-
-        if (this.email_verify_code.equals(code)) {
-            this.email_verified_at = LocalDateTime.now();
-            return true;
-        }
-
-        throw new Exception("InvalidVerifyToken");
-    }
-
-    public void setStatus() { //blocked user erstmal ausgelassen 
-        this.state = 0;
-        if (email_verified) {
-            this.state = 1;
-        }
-        
-    }
 }
