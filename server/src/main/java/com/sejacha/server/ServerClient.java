@@ -4,15 +4,20 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.mail.MessagingException;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.sejacha.server.exceptions.UserInvalidStateException;
 
 public class ServerClient extends Thread {
     private Socket socket;
     private List<ServerClient> clientList;
     private PrintWriter out;
     private BufferedReader in;
-    private int authTries = 0;
-    private User user;
+
+    private User user = null;
 
     public ServerClient(Socket socket, List<ServerClient> clientList) {
         this.socket = socket;
@@ -35,12 +40,6 @@ public class ServerClient extends Thread {
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
                     this.handleMessages(inputLine);
-                    if (authTries > 4) {
-                        SysPrinter.println("SocketClient",
-                                "Client reached maximum auth tries (" + this.socket.getInetAddress() + ")");
-                        socket.close();
-                        this.clientList.remove(this);
-                    }
                 }
             } catch (SocketException e) {
                 SysPrinter.println("SocketClient",
@@ -62,27 +61,47 @@ public class ServerClient extends Thread {
 
     private void handleMessages(String input) {
 
-        try {
+        SocketMessage socketMessage = new SocketMessage(input);
 
-            JSONObject jsonObject = new JSONObject(input);
+        if (this.user == null) {
+            if (socketMessage.getType() == SocketMessageType.LOGIN) {
+                this.user = new User();
 
-            switch (jsonObject.getString("exec")) {
-                case "send":
-                    SysPrinter.println("ServerClient", "exec command from " + this.socket.getInetAddress());
-                    break;
-                case "auth":
-                    SysPrinter.println("ServerClient", "Client sent auth request " + this.socket.getInetAddress());
-                    this.user = new User();
-                    user.login(jsonObject.getString("username"), jsonObject.getString("password"));
+                // this.user.login(socketMessage.getData().getString("email"),
+                // socketMessage.getData().getString("passwordhash"));
 
-                    break;
-
-                default:
-                    break;
             }
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            if (socketMessage.getType() == SocketMessageType.REGISTER) {
+                this.user = new User();
+
+                this.user.setName(socketMessage.getData().getString("name"));
+                this.user.setEmail(socketMessage.getData().getString("email"));
+                this.user.setPasswordHash(socketMessage.getData().getString("passwordhash"));
+
+                try {
+                    this.user.sendVerificationCode();
+                } catch (UserInvalidStateException ex) {
+                    SysPrinter.println("ServerClient", "User has invalid state");
+                    this.user = null;
+                } catch (MessagingException ex) {
+                    SysPrinter.println("ServerClient", "ERROR while sending verification-mail (" + ex + ")");
+                    this.user = null;
+                }
+
+                if (this.user.create()) {
+                    SysPrinter.println("ServerClient",
+                            "User has created account successfully (" + this.user.getID() + ")");
+                    return;
+                }
+                SysPrinter.println("ServerClient",
+                        "User account creation failed");
+                this.user = null;
+                return;
+            }
+
+        } else {
+
         }
 
     }
