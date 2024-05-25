@@ -12,38 +12,76 @@ public class Room {
     public String password;
     public LocalDateTime timestamp;
 
+    public Room (){
 
+    }
 
-    public boolean createRoom(String owner, String name){
+    /**
+     * Creats a Room if an ID is not already set
+     * @param owner String owner of the Room
+     * @param name String name of the Room
+     * @return boolean true = could be created / false = couldn't be created
+     * @throws Exception
+     */
+    public boolean createRoom(String owner, String name) throws Exception{
+        if (!(this.id != null)){
+            this.id = Database.getUniqueID("room");
+            this.owner = owner;
+            this.name = name;
 
-        //room_id wird automatisch erstellt
-        //room_owner
-        //room_name
-        //room_type
-        //room_password
-        this.id = RandomString.generate(11);
-        // prüfen ob schon vergeben
-
-        try {
-            PreparedStatement statement = Database.getConnection().prepareStatement("");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return true;
         }
+        
 
-        return true;
+        return false;
     }
 
-    public boolean createRoom(String owner, String name, String type){
+    /**
+     * Creats a Room if an ID is not already set
+     * @param owner String owner of the Room
+     * @param name String name of the Room
+     * @param type int declares the type of the Room (0 - Public (Standard) / 1 - Private)
+     * @return boolean true = could be created / false = couldn't be created
+     * @throws Exception
+     */
+    public boolean createRoom(String owner, String name, int type) throws Exception{
+        if (!(this.id != null)){
+            if (type != 1) {
+                this.id = Database.getUniqueID("room");
+                this.owner = owner;
+                this.name = name;
+                this.type = type;
+    
+                return true;
+            }
+        }
+        
 
-      
-
-        return true;
+        return false;
     }
 
-    public boolean createRoom(String owner, String name, String type, String password){
+    /**
+     * Creats a private Room if an ID is not already set
+     * @param owner String owner of the Room
+     * @param name String name of the Room
+     * @param password String password of the private Room
+     * @return
+     * @throws Exception
+     */
+    public boolean createRoom(String owner, String name, String password) throws Exception{
+        if (!(this.id != null)){
+            if (type == 1) {
+                this.id = Database.getUniqueID("room");
+                this.owner = owner;
+                this.name = name;
+                this.type = 1;
+                this.password = password;
+    
+                return true;
+            }
+        }
+        
 
-
-        return true;
+        return false;
     }
 }
