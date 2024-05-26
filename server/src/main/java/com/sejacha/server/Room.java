@@ -45,7 +45,7 @@ public class Room {
      * @throws Exception
      */
     public boolean createRoom(String owner, String name, int type) throws Exception{
-        if (!(this.id != null)){
+        if (this.id.equals(null)){
             if (type != 1) {
                 this.id = Database.getUniqueID("room");
                 this.owner = owner;
@@ -70,15 +70,15 @@ public class Room {
      */
     public boolean createRoom(String owner, String name, String password) throws Exception{
         if (!(this.id != null)){
-            if (type == 1) {
-                this.id = Database.getUniqueID("room");
-                this.owner = owner;
-                this.name = name;
-                this.type = 1;
-                this.password = password;
+            
+            this.id = Database.getUniqueID("room");
+            this.owner = owner;
+            this.name = name;
+            this.type = 1;
+            this.password = password;
     
-                return true;
-            }
+            return true;
+        
         }
         
 
