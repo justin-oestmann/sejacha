@@ -61,8 +61,8 @@ public class SocketMessage {
         }
     }
 
-    public void setData(SocketMessageData socketMessageData) {
-        // this.data =
+    public void setData(JSONObject socketMessageData) {
+        this.data = socketMessageData;
     }
 
     public JSONObject getData() {
