@@ -138,6 +138,31 @@ public class Room {
         return false;
     }
 
+    public boolean load() {
+        try {
+            PreparedStatement statement = Database.getConnection().prepareStatement(
+                    "SELECT * FROM room WHERE room_id=? LIMIT 0,1");
+            statement.setString(1, this.id);
+
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                this.id = result.getString("room_id");
+                this.owner = result.getString("room_owner");
+                this.name = result.getString("room_name");
+                this.type = RoomType.fromInt(result.getInt("room_type"));
+                this.password = result.getString("room_password");
+            }
+
+            this.isLoaded = true;
+
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     // getter
 
     public String getID() {
