@@ -88,6 +88,11 @@ public class Room {
         return true;
     }
 
+    /**
+     * Inserts the Room Object in the Database
+     * 
+     * @return true = successful / false = failed
+     */
     public boolean create() {
         if (this.id == null) {
             return false;
@@ -115,6 +120,11 @@ public class Room {
         return false;
     }
 
+    /**
+     * Updates the Room Object in the Database
+     * 
+     * @return true = successful / false = failed
+     */
     public boolean save() {
         if (this.id == null) {
             return false;
@@ -138,6 +148,11 @@ public class Room {
         return false;
     }
 
+    /**
+     * Loads the Parameters of the Room Object, that are saved in the Database
+     * 
+     * @return true = successful / false = failed
+     */
     public boolean load() {
         try {
             PreparedStatement statement = Database.getConnection().prepareStatement(
