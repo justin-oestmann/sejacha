@@ -19,7 +19,7 @@ public class SocketMessage {
 
     }
 
-    public String toJsoString() {
+    public String toJSONString() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("authkey", this.authKey);
         jsonObject.put("authkey", this.type.getNameOfType());
