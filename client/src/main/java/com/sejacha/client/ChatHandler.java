@@ -1,34 +1,32 @@
 package com.sejacha.client;
 
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import java.util.Scanner;
-import java.sql.*;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 
-public class ChatHandler {
+public class ChatHandler implements Runnable {
     private String[] commands = {"room", "help", "login", "register"};
     private String[] subCommands = {"create", "join", "delete", "help"};
     private List<Room> rooms = new ArrayList<>();
     private int nextRoomId = 1;
     private String currentUser = null;
     private boolean isAdmin = false;
-    private Properties config;
-
-    public static void main(String[] args) {
-        ChatHandler chatHandler = new ChatHandler();
-        chatHandler.loadConfig("server/config.properties");
-        chatHandler.run();
-    }
+    private JsonObject config;
+    private static final Scanner scanner = new Scanner(System.in);
+    private Map<String, String> users = new HashMap<>();
+    private Map<String, Boolean> adminStatus = new HashMap<>();
 
     public void loadConfig(String configFilePath) {
-        config = new Properties();
-        try (FileInputStream fis = new FileInputStream(configFilePath)) {
-            config.load(fis);
+        try (FileReader reader = new FileReader(configFilePath)) {
+            config = JsonParser.parseReader(reader).getAsJsonObject();
         } catch (IOException e) {
             System.err.println("Error loading config file: " + e.getMessage());
             e.printStackTrace();
@@ -36,30 +34,29 @@ public class ChatHandler {
     }
 
     public void run() {
-        Scanner scanner = new Scanner(System.in);
-        String input;
-
-        System.out.println(
-                "Welcome! Please input a command to continue. Type '/help room' for a list of available commands.");
+        String welcomeMessage = config != null && config.has("welcomeMessage") ? config.get("welcomeMessage").getAsString() : 
+                "Welcome! Please input a command to continue. Type '/help room' for a list of available commands.";
+        
+        System.out.println(welcomeMessage);
 
         while (true) {
             System.out.print("> ");
-            input = scanner.nextLine().toLowerCase();
+            String input = scanner.nextLine().toLowerCase();
 
             String[] inputParts = input.split(" ");
             String command = inputParts[0];
             switch (command) {
                 case "room":
-                    handleRoom(inputParts, scanner);
+                    handleRoom(inputParts);
                     break;
                 case "help":
                     handleHelp();
                     break;
                 case "login":
-                    handleLogin(scanner);
+                    handleLogin();
                     break;
                 case "register":
-                    handleRegister(scanner);
+                    handleRegister();
                     break;
                 default:
                     System.out.println("Unknown command. Type '/help room' for a list of available commands.");
@@ -68,7 +65,7 @@ public class ChatHandler {
         }
     }
 
-    private void handleRoom(String[] inputParts, Scanner scanner) {
+    private void handleRoom(String[] inputParts) {
         if (inputParts.length < 2) {
             System.out.println("Incorrect usage of the command. Type '/help room' for a list of available commands.");
             return;
@@ -86,7 +83,7 @@ public class ChatHandler {
                 break;
             case "join":
                 if (inputParts.length >= 3) {
-                    handleRoomJoin(inputParts[2], scanner);
+                    handleRoomJoin(inputParts[2]);
                 } else {
                     System.out.println("Usage: /room join <name>");
                 }
@@ -148,7 +145,7 @@ public class ChatHandler {
                            ", Timestamp: " + newRoom.getTimestamp());
     }
 
-    private void handleRoomJoin(String roomName, Scanner scanner) {
+    private void handleRoomJoin(String roomName) {
         if (roomName.isEmpty()) {
             System.out.println("Please specify a name for the room.");
             return;
@@ -192,80 +189,46 @@ public class ChatHandler {
     }
 
     private void handleRoomHelp() {
-        System.out.println("Verfügbare Befehle:");
+        System.out.println("Available commands:");
         for (String subCommand : subCommands) {
             System.out.println(" - " + subCommand);
         }
     }
 
     private void handleHelp() {
-        System.out.println("Verfügbare Befehle:");
+        System.out.println("Available commands:");
         for (String command : commands) {
             System.out.println(" - " + command);
         }
     }
 
-    private void handleLogin(Scanner scanner) {
+    private void handleLogin() {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        String query = "SELECT password, isAdmin FROM users WHERE username = ?";
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/" + config.getProperty("mysql.database"),
-                config.getProperty("mysql.user"), config.getProperty("mysql.password"));
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setString(1, username);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    String dbPassword = rs.getString("password");
-                    boolean dbIsAdmin = rs.getBoolean("isAdmin");
-                    if (password.equals(dbPassword)) {
-                        currentUser = username;
-                        isAdmin = dbIsAdmin;
-                        System.out.println("Login successful. Welcome, " + username + "!");
-                    } else {
-                        System.out.println("Incorrect password. Please try again.");
-                    }
-                } else {
-                    System.out.println("Username not found. Please register first.");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (users.containsKey(username) && users.get(username).equals(password)) {
+            currentUser = username;
+            isAdmin = adminStatus.get(username);
+            System.out.println("Login successful. Welcome, " + username + "!");
+        } else {
+            System.out.println("Invalid username or password. Please try again.");
         }
     }
 
-    private void handleRegister(Scanner scanner) {
+    private void handleRegister() {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        String checkQuery = "SELECT username FROM users WHERE username = ?";
-        String insertQuery = "INSERT INTO users (username, password) VALUES (?, ?)";
-
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/" + config.getProperty("mysql.database"),
-                config.getProperty("mysql.user"), config.getProperty("mysql.password"));
-             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-             PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-
-            checkStmt.setString(1, username);
-            try (ResultSet rs = checkStmt.executeQuery()) {
-                if (rs.next()) {
-                    System.out.println("Username already exists. Please choose another username.");
-                } else {
-                    insertStmt.setString(1, username);
-                    insertStmt.setString(2, password);
-                    insertStmt.executeUpdate();
-                    System.out.println("Registration successful! You can now log in.");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (users.containsKey(username)) {
+            System.out.println("Username already exists. Please choose another username.");
+        } else {
+            users.put(username, password);
+            adminStatus.put(username, false); // Default to non-admin user
+            System.out.println("Registration successful! You can now log in.");
         }
     }
 }
