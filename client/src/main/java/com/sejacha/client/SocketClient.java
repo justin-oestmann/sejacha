@@ -8,8 +8,19 @@ public class SocketClient {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
+    private String authKey;
+    private SocketClientResponse socketClientResponse;
 
-    public SocketClient(String serverAddress, int serverPort) {
+    // public SocketClient(String serverAddress, int serverPort) {
+    // this.run(serverAddress, serverPort);
+    // }
+
+    public SocketClient(String serverAddress, int port, SocketClientResponse socketClientResponse) {
+        this.socketClientResponse = socketClientResponse;
+        this.run(serverAddress, port);
+    }
+
+    private void run(String serverAddress, int serverPort) {
         try {
             socket = new Socket(serverAddress, serverPort);
             System.out.println("Connected to server at " + serverAddress + ":" + serverPort);
@@ -22,7 +33,7 @@ public class SocketClient {
                 try {
                     String serverResponse;
                     while ((serverResponse = in.readLine()) != null) {
-                        System.out.println("Server says: " + serverResponse);
+                        this.handleResponses(serverResponse);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -35,9 +46,41 @@ public class SocketClient {
         }
     }
 
-    public void sendMessage(String message) {
-        out.println(message);
+    private void sendMessage(String message) {
 
+    }
+
+    public void sendMessage(SocketMessage socketMessage) {
+        out.println(socketMessage.toJSONString());
+    }
+
+    private void handleResponses(String responseString) {
+        SocketMessage socketMessage = new SocketMessage(responseString);
+
+        switch (socketMessage.getType()) {
+            case LOGIN_RESPONSE_SUCCESS:
+                this.onLoginSuccess(socketMessage);
+                break;
+            case LOGIN_RESPONSE_FAIL:
+                this.onLoginFail(socketMessage);
+                break;
+
+            default:
+                SysPrinter.println("Server", "sent invalid message");
+                break;
+        }
+    }
+
+    public void login() {
+
+    }
+
+    private void onLoginSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onLoginSuccess(socketMessage);
+    }
+
+    private void onLoginFail(SocketMessage socketMessage) {
+        socketClientResponse.onLoginFail(socketMessage);
     }
 
 }
