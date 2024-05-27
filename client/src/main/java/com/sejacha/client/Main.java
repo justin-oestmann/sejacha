@@ -8,14 +8,6 @@ import com.sejacha.client.SysPrinter;
 public class Main {
     public static void main(String[] args) throws Exception {
 
-
-        ChatHandler chatHandler = new ChatHandler();
-        chatHandler.loadConfig("server/config.json");
-
-        Thread chatThread = new Thread(chatHandler);
-        chatThread.start();
-
-
         String serverAddress = "127.0.0.1";
         int serverPort = 4999;
         System.out.println("Server:" + serverAddress + ":" + serverPort);
