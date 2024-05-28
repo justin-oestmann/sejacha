@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
-import java.sql.*;
 
 class Room {
     private int id;
@@ -64,22 +63,27 @@ public class ChatHandler {
     public ChatHandler() {
         this.socketClient = new SocketClient("127.0.0.1", 4999, new SocketClientResponse() {
             public void onLoginSuccess(SocketMessage socketMessage) {
+                currentUser = socketMessage.getUsername();
+                isAdmin = socketMessage.isAdmin();
                 SysPrinter.println(SysPrinterType.INFO, "Login success");
+                System.out.println("Login successful. Welcome, " + currentUser + "!");
             }
 
             public void onLoginFail(SocketMessage socketMessage) {
                 SysPrinter.println(SysPrinterType.ERROR, "Login failed");
+                System.out.println("Incorrect username or password. Please try again.");
             }
 
             public void onRegisterSuccess(SocketMessage socketMessage) {
                 SysPrinter.println(SysPrinterType.INFO, "Register success");
+                System.out.println("Registration successful! You can now log in.");
             }
 
             public void onRegisterFail(SocketMessage socketMessage) {
                 SysPrinter.println(SysPrinterType.ERROR, "Register failed");
+                System.out.println("Registration failed. Username might already be taken.");
             }
         });
-
     }
 
     public void loadConfig(String configFilePath) {
@@ -253,14 +257,14 @@ public class ChatHandler {
     }
 
     private void handleRoomHelp() {
-        System.out.println("Verfügbare Befehle:");
+        System.out.println("Available commands:");
         for (String subCommand : subCommands) {
             System.out.println(" - " + subCommand);
         }
     }
 
     private void handleHelp() {
-        System.out.println("Verfügbare Befehle:");
+        System.out.println("Available commands:");
         for (String command : commands) {
             System.out.println(" - " + command);
         }
@@ -272,32 +276,7 @@ public class ChatHandler {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        String query = "SELECT password, isAdmin FROM users WHERE username = ?";
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/"
-                        + config.getProperty("mysql.database"),
-                config.getProperty("mysql.user"), config.getProperty("mysql.password"));
-                PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setString(1, username);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    String dbPassword = rs.getString("password");
-                    boolean dbIsAdmin = rs.getBoolean("isAdmin");
-                    if (password.equals(dbPassword)) {
-                        currentUser = username;
-                        isAdmin = dbIsAdmin;
-                        System.out.println("Login successful. Welcome, " + username + "!");
-                    } else {
-                        System.out.println("Incorrect password. Please try again.");
-                    }
-                } else {
-                    System.out.println("Username not found. Please register first.");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        socketClient.login(username, password);
     }
 
     private void handleRegister(Scanner scanner) {
@@ -306,29 +285,6 @@ public class ChatHandler {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        String checkQuery = "SELECT username FROM users WHERE username = ?";
-        String insertQuery = "INSERT INTO users (username, password) VALUES (?, ?)";
-
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/"
-                        + config.getProperty("mysql.database"),
-                config.getProperty("mysql.user"), config.getProperty("mysql.password"));
-                PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-                PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-
-            checkStmt.setString(1, username);
-            try (ResultSet rs = checkStmt.executeQuery()) {
-                if (rs.next()) {
-                    System.out.println("Username already exists. Please choose another username.");
-                } else {
-                    insertStmt.setString(1, username);
-                    insertStmt.setString(2, password);
-                    insertStmt.executeUpdate();
-                    System.out.println("Registration successful! You can now log in.");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        socketClient.register(username, password);
     }
 }
