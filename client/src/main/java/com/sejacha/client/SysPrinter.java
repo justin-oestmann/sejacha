@@ -8,4 +8,10 @@ public class SysPrinter {
         System.out.println(weight + " | " + message);
         return;
     }
+
+    public static void println(SysPrinterType type, String message) {
+        System.out.println(type.getNameOfType() + " | " + message);
+        return;
+    }
+
 }
