@@ -22,7 +22,7 @@ public class SocketMessage {
     public String toJSONString() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("authkey", this.authKey);
-        jsonObject.put("authkey", this.type.getNameOfType());
+        jsonObject.put("type", this.type.getNameOfType());
         jsonObject.put("data", this.data);
         return jsonObject.toString();
     }
