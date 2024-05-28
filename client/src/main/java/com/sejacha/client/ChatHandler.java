@@ -52,18 +52,34 @@ class Room {
 }
 
 public class ChatHandler {
-    private String[] commands = {"room", "help", "login", "register"};
-    private String[] subCommands = {"create", "join", "delete", "help"};
+    private String[] commands = { "room", "help", "login", "register" };
+    private String[] subCommands = { "create", "join", "delete", "help" };
     private List<Room> rooms = new ArrayList<>();
     private int nextRoomId = 1;
     private String currentUser = null;
     private boolean isAdmin = false;
     private Properties config;
+    private SocketClient socketClient;
 
-    public static void main(String[] args) {
-        ChatHandler chatHandler = new ChatHandler();
-        chatHandler.loadConfig("server/config.properties");
-        chatHandler.run();
+    public ChatHandler() {
+        this.socketClient = new SocketClient("127.0.0.1", 4999, new SocketClientResponse() {
+            public void onLoginSuccess(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.INFO, "Login success");
+            }
+
+            public void onLoginFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, "Login failed");
+            }
+
+            public void onRegisterSuccess(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.INFO, "Register success");
+            }
+
+            public void onRegisterFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, "Register failed");
+            }
+        });
+
     }
 
     public void loadConfig(String configFilePath) {
@@ -163,7 +179,8 @@ public class ChatHandler {
             try {
                 type = Integer.parseInt(inputParts[4]);
                 if (type != 0 && type != 1) {
-                    System.out.println("Invalid type. Type must be 0 (public) or 1 (private). Defaulting to public (0).");
+                    System.out
+                            .println("Invalid type. Type must be 0 (public) or 1 (private). Defaulting to public (0).");
                     type = 0;
                 }
             } catch (NumberFormatException e) {
@@ -181,12 +198,12 @@ public class ChatHandler {
 
         Room newRoom = new Room(nextRoomId++, roomName, owner, type, password, timestamp);
         rooms.add(newRoom);
-        System.out.println("A new room has been created! Room ID: " + newRoom.getId() + 
-                           ", Name: " + newRoom.getName() + 
-                           ", Owner: " + newRoom.getOwner() + 
-                           ", Type: " + newRoom.getType() + 
-                           ", Password: " + newRoom.getPassword() + 
-                           ", Timestamp: " + newRoom.getTimestamp());
+        System.out.println("A new room has been created! Room ID: " + newRoom.getId() +
+                ", Name: " + newRoom.getName() +
+                ", Owner: " + newRoom.getOwner() +
+                ", Type: " + newRoom.getType() +
+                ", Password: " + newRoom.getPassword() +
+                ", Timestamp: " + newRoom.getTimestamp());
     }
 
     private void handleRoomJoin(String roomName, Scanner scanner) {
@@ -200,12 +217,14 @@ public class ChatHandler {
                     System.out.print("This room is private. Please enter the password: ");
                     String enteredPassword = scanner.nextLine();
                     if (room.getPassword().equals(enteredPassword)) {
-                        System.out.println("You have joined the private room '" + roomName + "' with ID " + room.getId() + "!");
+                        System.out.println(
+                                "You have joined the private room '" + roomName + "' with ID " + room.getId() + "!");
                     } else {
                         System.out.println("Incorrect password. Access denied.");
                     }
                 } else {
-                    System.out.println("You have joined the public room '" + roomName + "' with ID " + room.getId() + "!");
+                    System.out.println(
+                            "You have joined the public room '" + roomName + "' with ID " + room.getId() + "!");
                 }
                 return;
             }
@@ -224,7 +243,8 @@ public class ChatHandler {
                     rooms.remove(room);
                     System.out.println("The room '" + roomName + "' has been deleted.");
                 } else {
-                    System.out.println("You do not have permission to delete the room '" + roomName + "'. Only the owner or an admin can delete this room.");
+                    System.out.println("You do not have permission to delete the room '" + roomName
+                            + "'. Only the owner or an admin can delete this room.");
                 }
                 return;
             }
@@ -254,9 +274,10 @@ public class ChatHandler {
 
         String query = "SELECT password, isAdmin FROM users WHERE username = ?";
         try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/" + config.getProperty("mysql.database"),
+                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/"
+                        + config.getProperty("mysql.database"),
                 config.getProperty("mysql.user"), config.getProperty("mysql.password"));
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -289,10 +310,11 @@ public class ChatHandler {
         String insertQuery = "INSERT INTO users (username, password) VALUES (?, ?)";
 
         try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/" + config.getProperty("mysql.database"),
+                "jdbc:mysql://" + config.getProperty("mysql.server") + ":" + config.getProperty("mysql.port") + "/"
+                        + config.getProperty("mysql.database"),
                 config.getProperty("mysql.user"), config.getProperty("mysql.password"));
-             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-             PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+                PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+                PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
 
             checkStmt.setString(1, username);
             try (ResultSet rs = checkStmt.executeQuery()) {
