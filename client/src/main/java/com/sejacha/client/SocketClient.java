@@ -77,7 +77,11 @@ public class SocketClient {
         }
     }
 
-    public void login() {
+    public void login(String username, String password) {
+
+    }
+
+    public void register(String username, String password) {
 
     }
 
