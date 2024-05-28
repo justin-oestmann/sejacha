@@ -58,17 +58,109 @@ public class SocketClient {
         SocketMessage socketMessage = new SocketMessage(responseString);
 
         switch (socketMessage.getType()) {
+
             case LOGIN_RESPONSE_SUCCESS:
                 this.onLoginSuccess(socketMessage);
                 break;
+
             case LOGIN_RESPONSE_FAIL:
                 this.onLoginFail(socketMessage);
                 break;
+
             case REGISTER_RESPONSE_SUCCESS:
                 this.onRegisterSuccess(socketMessage);
                 break;
+
             case REGISTER_RESPONSE_FAIL:
-                this.onLoginFail(socketMessage);
+                this.onRegisterFail(socketMessage);
+                break;
+
+            case LOGOUT_RESPONSE_SUCCESS:
+                this.onLogoutSuccess(socketMessage);
+                break;
+
+            case LOGOUT_RESPONSE_FAIL:
+                this.onLogoutFail(socketMessage);
+                break;
+
+            case NEWMESSAGE_RESPONSE_SUCCESS:
+                this.onNewMessageSuccess(socketMessage);
+                break;
+
+            case NEWMESSAGE_RESPONSE_FAIL:
+                this.onNewMessageFail(socketMessage);
+                break;
+
+            case ROOM_JOIN_RESPONSE_SUCCESS:
+                this.onRoomJoinSuccess(socketMessage);
+                break;
+
+            case ROOM_JOIN_RESPONSE_FAIL:
+                this.onRoomJoinFail(socketMessage);
+                break;
+
+            case ROOM_JOIN_W_PASSWORD_RESPONSE_SUCCESS:
+                this.onRoomJoinWPasswordSuccess(socketMessage);
+                break;
+
+            case ROOM_JOIN_W_PASSWORD_RESPONSE_FAIL:
+                this.onRoomJoinWPasswordFail(socketMessage);
+                break;
+
+            case ROOM_LEAVE_RESPONSE_SUCCESS:
+                this.onRoomLeaveSuccess(socketMessage);
+                break;
+
+            case ROOM_LEAVE_RESPONSE_FAIL:
+                this.onRoomLeaveFail(socketMessage);
+                break;
+
+            case ROOM_CREATE_RESPONSE_SUCCESS:
+                this.onRoomCreateSuccess(socketMessage);
+                break;
+
+            case ROOM_CREATE_RESPONSE_FAIL:
+                this.onRoomCreateFail(socketMessage);
+                break;
+
+            case ROOM_GETINFO_RESPONSE_SUCCESS:
+                this.onRoomGetInfoSuccess(socketMessage);
+                break;
+
+            case ROOM_GETINFO_RESPONSE_FAIL:
+                this.onRoomGetInfoFail(socketMessage);
+                break;
+
+            case ROOM_INVITE_CONTACT_RESPONSE_SUCCESS:
+                this.onRoomInviteContactSuccess(socketMessage);
+                break;
+
+            case ROOM_INVITE_CONTACT_RESPONSE_FAIL:
+                this.onRoomInviteContactFail(socketMessage);
+                break;
+
+            case CONTACT_ADD_RESPONSE_SUCCESS:
+                this.onContactAddSuccess(socketMessage);
+                break;
+
+            case CONTACT_ADD_RESPONSE_FAIL:
+                this.onContactAddFail(socketMessage);
+                break;
+
+            case CONTACT_REMOVE_RESPONSE_SUCCESS:
+                this.onContactRemoveSuccess(socketMessage);
+                break;
+
+            case CONTACT_REMOVE_RESPONSE_FAIL:
+                this.onContactRemoveFail(socketMessage);
+                break;
+
+            case CONTACT_CREATE_DM_ROOM_RESPONSE_SUCCESS:
+                this.onContactCreateDMRoomSuccess(socketMessage);
+                break;
+
+            case CONTACT_CREATE_DM_ROOM_RESPONSE_FAIL:
+                this.onContactCreateDMRoomFail(socketMessage);
                 break;
 
             default:
@@ -95,5 +187,97 @@ public class SocketClient {
 
     private void onRegisterSuccess(SocketMessage socketMessage) {
         socketClientResponse.onRegisterSuccess(socketMessage);
+    }
+
+    private void onRegisterFail(SocketMessage socketMessage) {
+        socketClientResponse.onRegisterFail(socketMessage);
+    }
+
+    private void onLogoutSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onLogoutSuccess(socketMessage);
+    }
+
+    private void onLogoutFail(SocketMessage socketMessage) {
+        socketClientResponse.onLogoutFail(socketMessage);
+    }
+
+    private void onNewMessageSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onNewMessageSuccess(socketMessage);
+    }
+
+    private void onNewMessageFail(SocketMessage socketMessage) {
+        socketClientResponse.onNewMessageFail(socketMessage);
+    }
+
+    private void onRoomJoinSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onRoomJoinSuccess(socketMessage);
+    }
+
+    private void onRoomJoinFail(SocketMessage socketMessage) {
+        socketClientResponse.onRoomJoinFail(socketMessage);
+    }
+
+    private void onRoomJoinWPasswordSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onRoomJoinWPasswordSuccess(socketMessage);
+    }
+
+    private void onRoomJoinWPasswordFail(SocketMessage socketMessage) {
+        socketClientResponse.onRoomJoinWPasswordFail(socketMessage);
+    }
+
+    private void onRoomLeaveSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onRoomLeaveSuccess(socketMessage);
+    }
+
+    private void onRoomLeaveFail(SocketMessage socketMessage) {
+        socketClientResponse.onRoomLeaveFail(socketMessage);
+    }
+
+    private void onRoomCreateSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onRoomCreateSuccess(socketMessage);
+    }
+
+    private void onRoomCreateFail(SocketMessage socketMessage) {
+        socketClientResponse.onRoomCreateFail(socketMessage);
+    }
+
+    private void onRoomGetInfoSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onRoomGetInfoSuccess(socketMessage);
+    }
+
+    private void onRoomGetInfoFail(SocketMessage socketMessage) {
+        socketClientResponse.onRoomGetInfoFail(socketMessage);
+    }
+
+    private void onRoomInviteContactSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onRoomInviteContactSuccess(socketMessage);
+    }
+
+    private void onRoomInviteContactFail(SocketMessage socketMessage) {
+        socketClientResponse.onRoomInviteContactFail(socketMessage);
+    }
+
+    private void onContactAddSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onContactAddSuccess(socketMessage);
+    }
+
+    private void onContactAddFail(SocketMessage socketMessage) {
+        socketClientResponse.onContactAddFail(socketMessage);
+    }
+
+    private void onContactRemoveSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onContactRemoveSuccess(socketMessage);
+    }
+
+    private void onContactRemoveFail(SocketMessage socketMessage) {
+        socketClientResponse.onContactRemoveFail(socketMessage);
+    }
+
+    private void onContactCreateDMRoomSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onContactCreateDMRoomSuccess(socketMessage);
+    }
+
+    private void onContactCreateDMRoomFail(SocketMessage socketMessage) {
+        socketClientResponse.onContactCreateDMRoomFail(socketMessage);
     }
 }
