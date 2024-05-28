@@ -6,4 +6,6 @@ interface SocketClientResponse {
     void onLoginFail(SocketMessage response);
 
     void onRegisterSuccess(SocketMessage response);
+
+    void onRegisterFail(SocketMessage response);
 }
