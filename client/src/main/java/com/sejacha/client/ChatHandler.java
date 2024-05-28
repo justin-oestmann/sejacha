@@ -83,6 +83,138 @@ public class ChatHandler {
                 SysPrinter.println(SysPrinterType.ERROR, "Register failed");
                 System.out.println("Registration failed. Username might already be taken.");
             }
+
+            @Override
+            public void onLogoutSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onLogoutSuccess'");
+            }
+
+            @Override
+            public void onLogoutFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onLogoutFail'");
+            }
+
+            @Override
+            public void onNewMessageSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onNewMessageSuccess'");
+            }
+
+            @Override
+            public void onNewMessageFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onNewMessageFail'");
+            }
+
+            @Override
+            public void onRoomJoinSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomJoinSuccess'");
+            }
+
+            @Override
+            public void onRoomJoinFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomJoinFail'");
+            }
+
+            @Override
+            public void onRoomJoinWPasswordSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomJoinWPasswordSuccess'");
+            }
+
+            @Override
+            public void onRoomJoinWPasswordFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomJoinWPasswordFail'");
+            }
+
+            @Override
+            public void onRoomLeaveSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomLeaveSuccess'");
+            }
+
+            @Override
+            public void onRoomLeaveFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomLeaveFail'");
+            }
+
+            @Override
+            public void onRoomCreateSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomCreateSuccess'");
+            }
+
+            @Override
+            public void onRoomCreateFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomCreateFail'");
+            }
+
+            @Override
+            public void onRoomGetInfoSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomGetInfoSuccess'");
+            }
+
+            @Override
+            public void onRoomGetInfoFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomGetInfoFail'");
+            }
+
+            @Override
+            public void onRoomInviteContactSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomInviteContactSuccess'");
+            }
+
+            @Override
+            public void onRoomInviteContactFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onRoomInviteContactFail'");
+            }
+
+            @Override
+            public void onContactAddSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onContactAddSuccess'");
+            }
+
+            @Override
+            public void onContactAddFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onContactAddFail'");
+            }
+
+            @Override
+            public void onContactRemoveSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onContactRemoveSuccess'");
+            }
+
+            @Override
+            public void onContactRemoveFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onContactRemoveFail'");
+            }
+
+            @Override
+            public void onContactCreateDMRoomSuccess(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onContactCreateDMRoomSuccess'");
+            }
+
+            @Override
+            public void onContactCreateDMRoomFail(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onContactCreateDMRoomFail'");
+            }
         });
     }
 
