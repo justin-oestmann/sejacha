@@ -9,6 +9,8 @@ public class SocketMessage {
     private String authKey;
     private SocketMessageType type;
     private JSONObject data;
+    private String username;
+    private boolean isAdmin;
 
     public SocketMessage() {
 
@@ -69,4 +71,11 @@ public class SocketMessage {
         return this.data;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 }
