@@ -64,6 +64,12 @@ public class SocketClient {
             case LOGIN_RESPONSE_FAIL:
                 this.onLoginFail(socketMessage);
                 break;
+            case REGISTER_RESPONSE_SUCCESS:
+                this.onRegisterSuccess(socketMessage);
+                break;
+            case REGISTER_RESPONSE_FAIL:
+                this.onLoginFail(socketMessage);
+                break;
 
             default:
                 SysPrinter.println("Server", "sent invalid message");
@@ -83,4 +89,7 @@ public class SocketClient {
         socketClientResponse.onLoginFail(socketMessage);
     }
 
+    private void onRegisterSuccess(SocketMessage socketMessage) {
+        socketClientResponse.onRegisterSuccess(socketMessage);
+    }
 }
