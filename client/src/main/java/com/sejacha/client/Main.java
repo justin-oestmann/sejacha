@@ -1,12 +1,5 @@
 package com.sejacha.client;
 
-import java.io.Console;
-import java.net.Socket;
-import java.sql.Time;
-import java.util.Scanner;
-
-import com.sejacha.client.SysPrinter;
-
 public class Main {
     public static void main(String[] args) throws Exception {
         ChatHandler chatHandler;

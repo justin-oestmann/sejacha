@@ -5,8 +5,6 @@ import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import com.mysql.cj.x.protobuf.MysqlxPrepare.Execute;
-
 public class Message {
 
     private String id;

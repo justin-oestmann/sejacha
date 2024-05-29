@@ -2,16 +2,13 @@ package com.sejacha.client;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class SocketClient {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-    private String authKey;
     private SocketClientResponse socketClientResponse;
 
     // public SocketClient(String serverAddress, int serverPort) {
@@ -66,10 +63,6 @@ public class SocketClient {
                     "Connection to " + serverAddress + ":" + serverPort + " failed/disconnected");
             return;
         }
-    }
-
-    private void sendMessage(String message) {
-
     }
 
     public void sendMessage(SocketMessage socketMessage) {

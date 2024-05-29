@@ -6,9 +6,6 @@ import java.util.*;
 
 import javax.mail.MessagingException;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.sejacha.server.exceptions.UserInvalidStateException;
 
 public class ServerClient extends Thread {

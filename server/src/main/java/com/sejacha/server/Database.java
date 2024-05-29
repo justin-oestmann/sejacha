@@ -1,13 +1,10 @@
 package com.sejacha.server;
 
-import java.lang.reflect.Executable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.mysql.cj.xdevapi.PreparableStatement;
 
 public class Database {
     private static Connection connection;
@@ -51,27 +48,27 @@ public class Database {
         }
     }
 
-   
     /**
-     * Überprüft, ob ein Wert in einer bestimmten row in einer Tabelle bereits existiert
+     * Überprüft, ob ein Wert in einer bestimmten row in einer Tabelle bereits
+     * existiert
      * true = Duplikat / false = kein Duplikat
+     * 
      * @param value
      * @param table
      * @param row
      * @return
      * @throws Exception
      */
-    public boolean checkDuplicate(String value, String table, String row) throws Exception{
+    public boolean checkDuplicate(String value, String table, String row) throws Exception {
         try {
             PreparedStatement statement = Database.getConnection().prepareStatement("SELECT ? FROM ? WHERE ?=?");
             statement.setString(1, row);
-            statement.setString( 2, table);
+            statement.setString(2, table);
             statement.setString(3, row);
             statement.setString(4, value);
             ResultSet result = statement.executeQuery();
 
             return result.next();
-
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -86,7 +83,7 @@ public class Database {
      * @return userID type String
      * @throws Exception
      */
-    public static String getUniqueID(String DB) throws Exception{
+    public static String getUniqueID(String DB) throws Exception {
         boolean isUnique = false;
         String userID = null;
 
@@ -102,12 +99,12 @@ public class Database {
                     uid_check = Database.getConnection().prepareStatement(
                             "SELECT user_id FROM users WHERE user_id =?");
                     break;
-            
+
                 default:
                     break;
             }
-            
-        while (!isUnique) {
+
+            while (!isUnique) {
                 userID = RandomString.generate(11);
                 uid_check.setString(1, userID);
                 ResultSet uid_check_result = uid_check.executeQuery();
@@ -119,7 +116,7 @@ public class Database {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return userID = null; //sollte nie passieren ig und das sollte von db abgefangen werden 
+            return userID = null; // sollte nie passieren ig und das sollte von db abgefangen werden
         }
     }
 }

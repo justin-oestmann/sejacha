@@ -1,7 +1,6 @@
 package com.sejacha.server;
 
 import org.json.JSONObject;
-import org.json.JSONArray;
 
 public class SocketMessage {
 

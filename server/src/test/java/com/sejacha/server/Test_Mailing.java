@@ -1,11 +1,11 @@
 package com.sejacha.server;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+// import org.junit.jupiter.api.DisplayName;
+// import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+// import java.time.LocalDateTime;
 
-import javax.mail.MessagingException;
+// import javax.mail.MessagingException;
 
 public class Test_Mailing {
 

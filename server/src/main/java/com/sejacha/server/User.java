@@ -1,14 +1,7 @@
 
 package com.sejacha.server;
 
-//import com.sejacha.server.exceptions.*;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Random;
 
 import javax.mail.MessagingException;
 

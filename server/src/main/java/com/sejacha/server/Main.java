@@ -1,7 +1,5 @@
 package com.sejacha.server;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.sql.*;
 import java.util.Scanner;
 
@@ -10,7 +8,9 @@ class Main {
 
         System.out.println("Starting Server...");
 
-        SocketServer ss = new SocketServer(4999, true);
+        SocketServer socketServer = new SocketServer(4999);
+
+        socketServer.start();
 
         Scanner scanner = new Scanner(System.in);
 
