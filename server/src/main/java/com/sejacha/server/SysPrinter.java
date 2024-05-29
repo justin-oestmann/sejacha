@@ -13,7 +13,8 @@ public class SysPrinter {
 
     public static void println(Socket socket, String source, String message) {
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println(time + " | " + socket.getPort() + " " + source + " |-> " + message);
+        System.out.println(
+                time + " | " + source + " " + socket.getInetAddress() + ":" + socket.getPort() + " |-> " + message);
         return;
     }
 
