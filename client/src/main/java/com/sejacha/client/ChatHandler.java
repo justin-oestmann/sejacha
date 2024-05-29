@@ -57,7 +57,6 @@ public class ChatHandler {
     private int nextRoomId = 1;
     private String currentUser = null;
     private boolean isAdmin = false;
-    private Properties config;
     private SocketClient socketClient;
 
     public ChatHandler() {
@@ -216,16 +215,6 @@ public class ChatHandler {
                 throw new UnsupportedOperationException("Unimplemented method 'onContactCreateDMRoomFail'");
             }
         });
-    }
-
-    public void loadConfig(String configFilePath) {
-        config = new Properties();
-        try (FileInputStream fis = new FileInputStream(configFilePath)) {
-            config.load(fis);
-        } catch (IOException e) {
-            System.err.println("Error loading config file: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     public void run() {
