@@ -43,18 +43,22 @@ public class User {
 
     public boolean loadByID(String id) {
         // TODO: LOAD-FUNCTION
+        return false;
     }
 
     public boolean loadByEmail(String email) {
         // TODO: LOAD FUNCTION
+        return false;
     }
 
     public boolean save() {
         // TODO: SAVE-FUNCTION
+        return false;
     }
 
     public boolean create() {
         // TODO: CREATE-FUNCTION
+        return false;
     }
 
     public void login(String email, String password) {
