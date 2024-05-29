@@ -2,6 +2,8 @@ package com.sejacha.server;
 
 import org.json.JSONObject;
 
+import com.sejacha.server.exceptions.SocketMessageIsNotNewException;
+
 public class SocketMessage {
 
     private boolean isLoadedMessage = false;
@@ -56,20 +58,28 @@ public class SocketMessage {
         return this.type;
     }
 
-    public void setType(SocketMessageType socketMessageType) {
+    public void setType(SocketMessageType socketMessageType) throws SocketMessageIsNotNewException {
         if (!this.isLoadedMessage) {
             this.type = socketMessageType;
+            return;
         }
+        throw new SocketMessageIsNotNewException("This Message is a loaded message and can't be changed");
     }
 
-    public void setAuthKey(String authKey) {
+    public void setAuthKey(String authKey) throws SocketMessageIsNotNewException {
         if (!this.isLoadedMessage) {
             this.authKey = authKey;
+            return;
         }
+        throw new SocketMessageIsNotNewException("This Message is a loaded message and can't be changed");
     }
 
-    public void setData(JSONObject socketMessageData) {
-        this.data = socketMessageData;
+    public void setData(JSONObject socketMessageData) throws SocketMessageIsNotNewException {
+        if (!this.isLoadedMessage) {
+            this.data = socketMessageData;
+            return;
+        }
+        throw new SocketMessageIsNotNewException("This Message is a loaded message and can't be changed");
     }
 
     public JSONObject getData() {
