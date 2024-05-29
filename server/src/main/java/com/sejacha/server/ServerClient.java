@@ -6,6 +6,9 @@ import java.util.*;
 
 import javax.mail.MessagingException;
 
+import org.json.JSONObject;
+
+import com.sejacha.server.exceptions.SocketMessageIsNotNewException;
 import com.sejacha.server.exceptions.UserInvalidStateException;
 
 public class ServerClient extends Thread {
@@ -43,6 +46,8 @@ public class ServerClient extends Thread {
                         "Client disconnected (" + this.socket.getInetAddress() + ")(" + e.getMessage() + ")");
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 try {
                     socket.close();
@@ -56,7 +61,7 @@ public class ServerClient extends Thread {
         }
     }
 
-    private void handleMessages(String input) {
+    private void handleMessages(String input) throws SocketMessageIsNotNewException {
 
         SocketMessage socketMessage = new SocketMessage(input);
 
