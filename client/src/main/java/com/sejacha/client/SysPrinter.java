@@ -14,4 +14,9 @@ public class SysPrinter {
         return;
     }
 
+    public static void printCursor() {
+        System.out.print("> ");
+        return;
+    }
+
 }
