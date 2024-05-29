@@ -4,6 +4,9 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class SocketClient {
     private Socket socket;
     private PrintWriter out;
@@ -20,29 +23,48 @@ public class SocketClient {
         this.run(serverAddress, port);
     }
 
+    public boolean isConnected() {
+        if (socket == null) {
+            return false;
+        }
+
+        return socket.isConnected();
+    }
+
     private void run(String serverAddress, int serverPort) {
         try {
             socket = new Socket(serverAddress, serverPort);
-            System.out.println("Connected to server at " + serverAddress + ":" + serverPort);
+            SysPrinter.println(SysPrinterType.INFO, "Connecting to " + serverAddress + ":" + serverPort);
 
             this.out = new PrintWriter(socket.getOutputStream(), true);
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             // Start a thread to handle incoming messages from the server
             new Thread(() -> {
-                try {
-                    String serverResponse;
-                    while ((serverResponse = in.readLine()) != null) {
-                        this.handleResponses(serverResponse);
+                while (true) {
+                    try {
+                        String serverResponse;
+                        while ((serverResponse = in.readLine()) != null) {
+                            this.handleResponses(serverResponse);
+                        }
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
 
             }).start();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (java.net.ConnectException e) {
+            SysPrinter.println(SysPrinterType.INFO,
+                    "Connection to " + serverAddress + ":" + serverPort + " failed/disconnected");
+            return;
+        }
+
+        catch (IOException e) {
+            SysPrinter.println(SysPrinterType.INFO,
+                    "Connection to " + serverAddress + ":" + serverPort + " failed/disconnected");
+            return;
         }
     }
 
@@ -55,6 +77,7 @@ public class SocketClient {
     }
 
     private void handleResponses(String responseString) {
+        SysPrinter.println("test", responseString);
         SocketMessage socketMessage = new SocketMessage(responseString);
 
         switch (socketMessage.getType()) {
@@ -170,11 +193,31 @@ public class SocketClient {
     }
 
     public void login(String username, String password) {
+        SocketMessage socketMessage = new SocketMessage();
 
+        socketMessage.setType(SocketMessageType.LOGIN);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("username", username);
+        jsonObject.put("password", Crypt.calculateSHA512(password));
+
+        socketMessage.setData(jsonObject);
+
+        this.sendMessage(socketMessage);
     }
 
     public void register(String username, String password) {
+        SocketMessage socketMessage = new SocketMessage();
 
+        socketMessage.setType(SocketMessageType.REGISTER);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("username", username);
+        jsonObject.put("password", Crypt.calculateSHA512(password));
+
+        socketMessage.setData(jsonObject);
+
+        this.sendMessage(socketMessage);
     }
 
     private void onLoginSuccess(SocketMessage socketMessage) {
