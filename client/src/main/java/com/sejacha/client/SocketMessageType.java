@@ -1,6 +1,8 @@
 package com.sejacha.client;
 
 public enum SocketMessageType {
+    PING("ping"),
+
     LOGIN("login"),
     LOGIN_RESPONSE_SUCCESS("login_response_success"),
     LOGIN_RESPONSE_FAIL("login_response_fail"),
