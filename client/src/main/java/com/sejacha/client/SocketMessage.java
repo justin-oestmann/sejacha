@@ -6,11 +6,9 @@ import org.json.JSONArray;
 public class SocketMessage {
 
     private boolean isLoadedMessage = false;
-    private String authKey;
+    private String authKey = null;
     private SocketMessageType type;
-    private JSONObject data;
-    private String username;
-    private boolean isAdmin;
+    private JSONObject data = null;
 
     public SocketMessage() {
 
@@ -18,7 +16,6 @@ public class SocketMessage {
 
     public SocketMessage(String jsonString) {
         this.importJSONString(jsonString);
-
     }
 
     public String toJSONString() {
@@ -33,14 +30,23 @@ public class SocketMessage {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
 
-            this.authKey = jsonObject.getString("authkey");
-            this.type = SocketMessageType.fromString(jsonObject.getString("type"));
-            this.data = jsonObject.getJSONObject("data");
-            this.isLoadedMessage = true;
+            if (jsonObject.has("authkey")) {
+                this.authKey = jsonObject.getString("authkey");
+            }
+
+            if (jsonObject.has("type")) {
+                this.type = SocketMessageType.fromString(jsonObject.getString("type"));
+            }
+
+            if (jsonObject.has("data")) {
+                this.data = jsonObject.getJSONObject("data");
+            }
 
         } catch (Exception ex) {
-            throw ex;
+            // SysPrinter.println(ex);
         }
+
+        this.isLoadedMessage = true;
     }
 
     public String getAuthKey() {
@@ -71,11 +77,4 @@ public class SocketMessage {
         return this.data;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public boolean isAdmin() {
-        return isAdmin;
-    }
 }
