@@ -30,8 +30,8 @@ public class ServerClient extends Thread {
         }
     }
 
-    public void sendMessage(String message) {
-        out.println(message);
+    public void sendMessage(SocketMessage message) {
+        out.println(message.toJSONString());
     }
 
     public void run() {
@@ -65,10 +65,6 @@ public class ServerClient extends Thread {
 
         if (this.user == null) {
             if (socketMessage.getType() == SocketMessageType.LOGIN) {
-                this.user = new User();
-
-                // this.user.login(socketMessage.getData().getString("email"),
-                // socketMessage.getData().getString("passwordhash"));
 
             }
 
@@ -98,6 +94,14 @@ public class ServerClient extends Thread {
                         "User account creation failed");
                 this.user = null;
                 return;
+            }
+
+            if (socketMessage.getType() == SocketMessageType.PING) {
+                SysPrinter.println(this.socket, "ServerClient", "ping");
+
+                // this.user.login(socketMessage.getData().getString("email"),
+                // socketMessage.getData().getString("passwordhash"));
+
             }
 
         } else {
