@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
+import org.json.JSONObject;
+
 class Room {
     private int id;
     private String name;
@@ -58,12 +60,12 @@ public class ChatHandler {
     private String currentUser = null;
     private boolean isAdmin = false;
     private SocketClient socketClient;
+    private String authKey;
 
     public ChatHandler() {
         this.socketClient = new SocketClient("127.0.0.1", 4999, new SocketClientResponse() {
             public void onLoginSuccess(SocketMessage socketMessage) {
-                currentUser = socketMessage.getUsername();
-                isAdmin = socketMessage.isAdmin();
+                authKey = socketMessage.getAuthKey();
                 SysPrinter.println(SysPrinterType.INFO, "Login success");
                 System.out.println("Login successful. Welcome, " + currentUser + "!");
             }
@@ -218,31 +220,65 @@ public class ChatHandler {
     }
 
     public void run() {
+
         Scanner scanner = new Scanner(System.in);
         String input;
 
-        System.out.println(
+        if (!socketClient.isConnected()) {
+            SysPrinter.println(SysPrinterType.ERROR,
+                    "Connection failed or disconnected! Please type '/connect' to try again!");
+            SysPrinter.printCursor();
+            while (true) {
+
+                if (scanner.hasNextLine()) {
+                    input = scanner.nextLine().toLowerCase();
+
+                    String[] inputParts = input.split(" ");
+
+                    if (inputParts[0].equalsIgnoreCase("/connect")) {
+                        return;
+                    } else {
+                        SysPrinter.println(SysPrinterType.ERROR,
+                                "Connection failed or disconnected again! Please type '/connect' to try again!>");
+                    }
+                }
+            }
+        }
+
+        SysPrinter.println(SysPrinterType.INFO,
                 "Welcome! Please input a command to continue. Type '/help room' for a list of available commands.");
 
         while (true) {
-            System.out.print("> ");
+            SysPrinter.printCursor();
             input = scanner.nextLine().toLowerCase();
 
             String[] inputParts = input.split(" ");
             String command = inputParts[0];
             switch (command) {
-                case "room":
+                case "/room":
                     handleRoom(inputParts, scanner);
                     break;
-                case "help":
+                case "/help":
                     handleHelp();
                     break;
-                case "login":
+                case "/login":
                     handleLogin(scanner);
                     break;
-                case "register":
+                case "/register":
                     handleRegister(scanner);
                     break;
+
+                case "/ping":
+                    handlePing(scanner);
+                    break;
+
+                case "/restart":
+                    return;
+
+                case "/exit":
+                    System.exit(0);
+                    break;
+
                 default:
                     System.out.println("Unknown command. Type '/help room' for a list of available commands.");
                     break;
@@ -407,5 +443,23 @@ public class ChatHandler {
         String password = scanner.nextLine();
 
         socketClient.register(username, password);
+    }
+
+    private void handlePing(Scanner scanner) {
+
+        SocketMessage socketMessage = new SocketMessage();
+
+        socketMessage.setType(SocketMessageType.PING);
+
+        JSONObject data = new JSONObject();
+        data.put("ping", "hello world!");
+
+        socketMessage.setData(data);
+
+        socketMessage.setAuthKey(null);
+
+        socketClient.sendMessage(socketMessage);
+
+        SysPrinter.println(SysPrinterType.INFO, "ping sent!");
     }
 }
