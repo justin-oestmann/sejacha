@@ -16,11 +16,6 @@ class Main {
 
         while (true) {
             String data = scanner.nextLine();
-            if (data == "ping") {
-                for (ServerClient client : ss.getClients()) {
-                    client.sendMessage("ping!");
-                }
-            }
             if (data == "close") {
                 scanner.close();
                 System.exit(0);
