@@ -8,6 +8,7 @@ public class SocketMessage {
     private String authKey = null;
     private SocketMessageType type;
     private JSONObject data = null;
+    private String roomName;
 
     public SocketMessage() {
 
@@ -74,6 +75,14 @@ public class SocketMessage {
 
     public JSONObject getData() {
         return this.data;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
 }
