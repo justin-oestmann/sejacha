@@ -85,4 +85,8 @@ public class SocketMessage {
         this.roomName = roomName;
     }
 
+    public String getRoomInfo() {
+        return data.optString("roomInfo", "No room information available");
+    }
+
 }
