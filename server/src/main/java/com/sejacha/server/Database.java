@@ -25,9 +25,10 @@ public class Database {
      * it initializes the connection using the configuration parameters.
      * 
      * @return the database connection
+     * @throws SQLException if a database access error occurs
      */
-    public static Connection getConnection() {
-        if (connection == null) {
+    public static Connection getConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
             String url = "jdbc:mysql://" + Config.getConfig("mysql.server") + ":" + Config.getConfig("mysql.port") + "/"
                     + Config.getConfig("mysql.database");
 
@@ -38,6 +39,7 @@ public class Database {
                 SysPrinter.println("MYSQL-Database", "Connected to database!");
             } catch (SQLException e) {
                 SysPrinter.println("MYSQL-Database", "Error while connecting to database: " + e.getMessage());
+                throw e;
             }
         }
         return connection;
@@ -67,69 +69,68 @@ public class Database {
      * @param table the table to check
      * @param row   the row to check
      * @return true if a duplicate exists, false otherwise
-     * @throws Exception if an error occurs during the check
+     * @throws SQLException if a database access error occurs
      */
-    public boolean checkDuplicate(String value, String table, String row) throws Exception {
+    public boolean checkDuplicate(String value, String table, String row) throws SQLException {
         try {
-            PreparedStatement statement = Database.getConnection().prepareStatement("SELECT ? FROM ? WHERE ?=?");
-            statement.setString(1, row);
-            statement.setString(2, table);
-            statement.setString(3, row);
-            statement.setString(4, value);
-            ResultSet result = statement.executeQuery();
-
-            return result.next();
-
+            try (PreparedStatement statement = Database.getConnection()
+                    .prepareStatement("SELECT * FROM " + table + " WHERE " + row + "=?")) {
+                statement.setString(1, value);
+                try (ResultSet result = statement.executeQuery()) {
+                    return result.next();
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            throw e;
         }
     }
 
     /**
      * Generates a unique ID for the specified database entity.
      * 
-     * @param DB the database entity ("user", "room", or "contacts")
+     * @param entity the database entity ("user", "room", or "contacts")
      * @return a unique ID as a {@code String}
-     * @throws Exception if an error occurs during the ID generation
+     * @throws SQLException if a database access error occurs
      */
-    public static String getUniqueID(String DB) throws Exception {
-        boolean isUnique = false;
-        String ID = null;
+    public static String getUniqueID(String entity) throws SQLException {
+        String tableName;
+        String idColumn;
 
-        PreparedStatement ID_check = null;
+        switch (entity) {
+            case "user":
+                tableName = "users";
+                idColumn = "user_id";
+                break;
+            case "room":
+                tableName = "rooms";
+                idColumn = "room_id";
+                break;
+            case "contacts":
+                tableName = "contacts";
+                idColumn = "contact_id";
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid entity type: " + entity);
+        }
 
-        try {
-            switch (DB) {
-                case "user":
-                    ID_check = Database.getConnection().prepareStatement(
-                            "SELECT user_id FROM users WHERE user_id =?");
-                    break;
-                case "room":
-                    ID_check = Database.getConnection().prepareStatement(
-                            "SELECT room_id FROM users WHERE room_id =?");
-                    break;
-                case "contacts":
-                    ID_check = Database.getConnection().prepareStatement(
-                            "SELECT contact_id FROM users WHERE contact_id =?");
-                    break;
-                default:
-                    break;
-            }
+        try (PreparedStatement idCheck = Database.getConnection().prepareStatement(
+                "SELECT " + idColumn + " FROM " + tableName + " WHERE " + idColumn + " = ?")) {
+            String ID;
+            ResultSet idCheckResult;
+            boolean isUnique;
 
-            while (!isUnique) {
+            do {
                 ID = RandomString.generate(8);
-                ID_check.setString(1, ID);
-                ResultSet ID_check_result = ID_check.executeQuery();
-                if (!ID_check_result.next()) {
-                    isUnique = true;
-                }
-            }
-            return ID;
+                idCheck.setString(1, ID);
+                idCheckResult = idCheck.executeQuery();
+                isUnique = !idCheckResult.next();
+            } while (!isUnique);
 
+            return ID;
         } catch (SQLException e) {
             e.printStackTrace();
-            return null; // This should never happen and should be handled by the database
+            throw e;
         }
     }
 }

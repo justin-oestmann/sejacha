@@ -10,62 +10,47 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Base64;
 
+/**
+ * The {@code GroupCrypt} class provides methods for generating asymmetric and
+ * symmetric keys,
+ * encrypting and decrypting group keys, as well as encrypting and decrypting
+ * messages using
+ * symmetric encryption.
+ */
 public class GroupCrypt {
 
-    /*
-     * public static void main(String[] args) throws Exception {
-     * // Beispiel für Schlüsselerzeugung für drei Gruppenmitglieder
-     * KeyPair member1 = generateKeyPair();
-     * KeyPair member2 = generateKeyPair();
-     * KeyPair member3 = generateKeyPair();
-     * 
-     * // Gruppenschlüssel generieren
-     * SecretKey groupKey = generateSymmetricKey();
-     * 
-     * // Gruppenschlüssel für jedes Mitglied verschlüsseln
-     * Map<PublicKey, String> encryptedGroupKeys = new HashMap<>();
-     * encryptedGroupKeys.put(member1.getPublic(), encryptGroupKey(groupKey,
-     * member1.getPublic()));
-     * encryptedGroupKeys.put(member2.getPublic(), encryptGroupKey(groupKey,
-     * member2.getPublic()));
-     * encryptedGroupKeys.put(member3.getPublic(), encryptGroupKey(groupKey,
-     * member3.getPublic()));
-     * 
-     * // Beispielnachricht
-     * String message = "Diese Nachricht ist geheim.";
-     * 
-     * // Nachricht verschlüsseln
-     * String encryptedMessage = encryptMessage(message, groupKey);
-     * System.out.println("Verschlüsselte Nachricht: " + encryptedMessage);
-     * 
-     * // Nachricht für jedes Mitglied entschlüsseln
-     * for (KeyPair member : new KeyPair[] { member1, member2, member3 }) {
-     * SecretKey decryptedGroupKey =
-     * decryptGroupKey(encryptedGroupKeys.get(member.getPublic()),
-     * member.getPrivate());
-     * String decryptedMessage = decryptMessage(encryptedMessage,
-     * decryptedGroupKey);
-     * System.out.println("Entschlüsselte Nachricht für Mitglied: " +
-     * decryptedMessage);
-     * }
-     * }
+    /**
+     * Generates an asymmetric key pair using RSA algorithm.
+     *
+     * @return the generated {@code KeyPair}
+     * @throws Exception if an error occurs during key pair generation
      */
-
-    // Generiert ein asymmetrisches Schlüsselpaar
     public static KeyPair generateKeyPair() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         return keyGen.generateKeyPair();
     }
 
-    // Generiert einen symmetrischen Schlüssel
+    /**
+     * Generates a symmetric key using AES algorithm.
+     *
+     * @return the generated {@code SecretKey}
+     * @throws Exception if an error occurs during symmetric key generation
+     */
     public static SecretKey generateSymmetricKey() throws Exception {
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(256);
         return keyGen.generateKey();
     }
 
-    // Verschlüsselt den Gruppenschlüssel mit einem öffentlichen Schlüssel
+    /**
+     * Encrypts the group key using a public key.
+     *
+     * @param groupKey  the group key to encrypt
+     * @param publicKey the public key used for encryption
+     * @return the encrypted group key as a Base64 encoded string
+     * @throws Exception if an error occurs during encryption
+     */
     public static String encryptGroupKey(SecretKey groupKey, PublicKey publicKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
@@ -73,7 +58,14 @@ public class GroupCrypt {
         return Base64.getEncoder().encodeToString(encryptedKey);
     }
 
-    // Entschlüsselt den Gruppenschlüssel mit einem privaten Schlüssel
+    /**
+     * Decrypts the group key using a private key.
+     *
+     * @param encryptedGroupKey the encrypted group key as a Base64 encoded string
+     * @param privateKey        the private key used for decryption
+     * @return the decrypted group key
+     * @throws Exception if an error occurs during decryption
+     */
     public static SecretKey decryptGroupKey(String encryptedGroupKey, PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
@@ -81,7 +73,14 @@ public class GroupCrypt {
         return new SecretKeySpec(decryptedKey, "AES");
     }
 
-    // Verschlüsselt eine Nachricht mit einem symmetrischen Schlüssel
+    /**
+     * Encrypts a message using a symmetric key.
+     *
+     * @param message  the message to encrypt
+     * @param groupKey the symmetric key used for encryption
+     * @return the encrypted message as a Base64 encoded string
+     * @throws Exception if an error occurs during encryption
+     */
     public static String encryptMessage(String message, SecretKey groupKey) throws Exception {
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, groupKey);
@@ -89,7 +88,14 @@ public class GroupCrypt {
         return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
-    // Entschlüsselt eine Nachricht mit einem symmetrischen Schlüssel
+    /**
+     * Decrypts a message using a symmetric key.
+     *
+     * @param encryptedMessage the encrypted message as a Base64 encoded string
+     * @param groupKey         the symmetric key used for decryption
+     * @return the decrypted message
+     * @throws Exception if an error occurs during decryption
+     */
     public static String decryptMessage(String encryptedMessage, SecretKey groupKey) throws Exception {
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.DECRYPT_MODE, groupKey);

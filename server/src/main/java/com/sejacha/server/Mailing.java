@@ -1,24 +1,32 @@
 package com.sejacha.server;
 
 import java.util.Properties;
-
-import javax.mail.Authenticator;
-
-import javax.mail.Message;
 import javax.mail.MessagingException;
-
-import javax.mail.PasswordAuthentication;
+import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-
 import javax.mail.internet.MimeMessage;
 
+/**
+ * Utility class for sending emails.
+ */
 public class Mailing {
 
+    /**
+     * Constructs a new Mailing object.
+     */
     public Mailing() {
     }
 
+    /**
+     * Sends an email with the specified details.
+     *
+     * @param to      the recipient email address
+     * @param subject the subject of the email
+     * @param body    the body of the email
+     * @throws MessagingException if an error occurs while sending the email
+     */
     public static void sendEmail(String to, String subject, String body) throws MessagingException {
         // Set up the SMTP server properties
         Properties properties = new Properties();
@@ -28,14 +36,12 @@ public class Mailing {
         properties.put("mail.smtp.starttls.enable", "true");
 
         // Create a session with an authenticator
-        Authenticator auth = new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(Config.getConfig("email.smtp.user"),
+        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
+            protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
+                return new javax.mail.PasswordAuthentication(Config.getConfig("email.smtp.user"),
                         Config.getConfig("email.smtp.password"));
             }
-        };
-
-        Session session = Session.getInstance(properties, auth);
+        });
 
         // Create the email message
         Message message = new MimeMessage(session);
@@ -47,5 +53,4 @@ public class Mailing {
         // Send the email
         Transport.send(message);
     }
-
 }
