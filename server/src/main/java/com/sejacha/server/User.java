@@ -54,7 +54,7 @@ public class User {
                 this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
                 this.verify_code = result.getString("verify_code");
                 this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
-                
+
             }
             return true;
 
@@ -81,7 +81,7 @@ public class User {
                 this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
                 this.verify_code = result.getString("verify_code");
                 this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
-                
+            
             }
             return true;
 
@@ -92,8 +92,24 @@ public class User {
     }
 
     public boolean save() {
-        
+        try {
+            PreparedStatement statement = Database.getConnection().prepareStatement(
+                    "UPDATE users SET user_name = ?, user_email = ?, user_password = ?, user_password_changed_at = ?, user_state = ?, user_updated_at = ?, user_email_verify_code = ?, user_email_verified_at = ?,");
+            statement.setString(1, this.name);
+            statement.setString(2, this.email);
+            statement.setString(3, this.password);
+            statement.setTimestamp(4, this.password_changed_at);
+            statement.setInt(5, this.state.getNameOfType());
+            statement.setTimestamp(6, this.user_updated_at);
+            statement.setString(7, this.verify_code);
+            statement.setTimestamp(8, this.verified_at);
 
+            ResultSet result = statement.executeQuery();
+            return result.rowUpdated();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
