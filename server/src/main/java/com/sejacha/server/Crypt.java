@@ -18,8 +18,9 @@ public class Crypt {
      * 
      * @param str1 Der erste String.
      * @param str2 Der zweite String.
-     * @return true, wenn die Hashwerte der beiden Strings übereinstimmen, ansonsten
-     *         false.
+     * @return {@code true}, wenn die Hashwerte der beiden Strings übereinstimmen,
+     *         ansonsten
+     *         {@code false}.
      */
     public static boolean compareSHA512(String str1, String str2) {
         String hash1 = calculateSHA512(str1);
@@ -57,7 +58,8 @@ public class Crypt {
      * 
      * @param input     Der zu verschlüsselnde String.
      * @param publicKey Der öffentliche Schlüssel.
-     * @return Der verschlüsselte String.
+     * @return Die verschlüsselten Daten als Byte-Array.
+     * @throws Exception wenn ein Fehler während der Verschlüsselung auftritt.
      */
     public static byte[] encryptWithPublicKey(String input, PublicKey publicKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
@@ -71,6 +73,7 @@ public class Crypt {
      * @param encryptedData Die verschlüsselten Daten.
      * @param privateKey    Der private Schlüssel.
      * @return Der entschlüsselte String.
+     * @throws Exception wenn ein Fehler während der Entschlüsselung auftritt.
      */
     public static String decryptWithPrivateKey(byte[] encryptedData, PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
@@ -82,8 +85,9 @@ public class Crypt {
     /**
      * Generiert ein Schlüsselpaar für asymmetrische Verschlüsselung.
      * 
-     * @return Ein KeyPair-Objekt mit einem öffentlichen und einem privaten
+     * @return Ein {@code KeyPair}-Objekt mit einem öffentlichen und einem privaten
      *         Schlüssel.
+     * @throws Exception wenn ein Fehler während der Schlüsselerzeugung auftritt.
      */
     public static KeyPair generateKeyPair() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
