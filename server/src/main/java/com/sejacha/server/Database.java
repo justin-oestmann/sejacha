@@ -1,3 +1,8 @@
+/**
+ * The {@code Database} class provides methods for connecting to and interacting with the database.
+ * It uses a singleton pattern to manage the database connection and provides utility methods for 
+ * checking duplicates and generating unique IDs.
+ */
 package com.sejacha.server;
 
 import java.sql.Connection;
@@ -9,20 +14,25 @@ import java.sql.SQLException;
 public class Database {
     private static Connection connection;
 
-    // Private Konstruktor, um Instanziierung zu verhindern
+    // Private constructor to prevent instantiation
     private Database() {
-        // Leerer Konstruktor
+        // Empty constructor
     }
 
-    // Statische Methode zur Rückgabe der Datenbankverbindung
+    /**
+     * Returns the database connection. If the connection is not already
+     * established,
+     * it initializes the connection using the configuration parameters.
+     * 
+     * @return the database connection
+     */
     public static Connection getConnection() {
         if (connection == null) {
             String url = "jdbc:mysql://" + Config.getConfig("mysql.server") + ":" + Config.getConfig("mysql.port") + "/"
-                    + Config
-                            .getConfig("mysql.database");
+                    + Config.getConfig("mysql.database");
 
             try {
-                // Verbindung zur Datenbank herstellen
+                // Establish the database connection
                 connection = DriverManager.getConnection(url, Config.getConfig("mysql.user"),
                         Config.getConfig("mysql.password"));
                 SysPrinter.println("MYSQL-Database", "Connected to database!");
@@ -33,7 +43,9 @@ public class Database {
         return connection;
     }
 
-    // Statische Methode zum Schließen der Datenbankverbindung
+    /**
+     * Closes the database connection if it is established.
+     */
     public static void closeConnection() {
         if (connection != null) {
             try {
@@ -43,21 +55,19 @@ public class Database {
                 SysPrinter.println("MYSQL-Database",
                         "Error while closing connection to database: " + e.getMessage());
             } finally {
-                connection = null; // Setze die Connection-Referenz zurück
+                connection = null; // Reset the connection reference
             }
         }
     }
 
     /**
-     * Überprüft, ob ein Wert in einer bestimmten row in einer Tabelle bereits
-     * existiert
-     * true = Duplikat / false = kein Duplikat
+     * Checks if a value already exists in a specified row of a table.
      * 
-     * @param value
-     * @param table
-     * @param row
-     * @return
-     * @throws Exception
+     * @param value the value to check for duplicates
+     * @param table the table to check
+     * @param row   the row to check
+     * @return true if a duplicate exists, false otherwise
+     * @throws Exception if an error occurs during the check
      */
     public boolean checkDuplicate(String value, String table, String row) throws Exception {
         try {
@@ -74,14 +84,14 @@ public class Database {
             e.printStackTrace();
             return false;
         }
-
     }
 
     /**
+     * Generates a unique ID for the specified database entity.
      * 
-     * @param DB input "user" or "room" for given id´s
-     * @return userID type String
-     * @throws Exception
+     * @param DB the database entity ("user", "room", or "contacts")
+     * @return a unique ID as a {@code String}
+     * @throws Exception if an error occurs during the ID generation
      */
     public static String getUniqueID(String DB) throws Exception {
         boolean isUnique = false;
@@ -103,7 +113,6 @@ public class Database {
                     ID_check = Database.getConnection().prepareStatement(
                             "SELECT contact_id FROM users WHERE contact_id =?");
                     break;
-
                 default:
                     break;
             }
@@ -120,7 +129,7 @@ public class Database {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return ID = null; // sollte nie passieren ig und das sollte von db abgefangen werden
+            return null; // This should never happen and should be handled by the database
         }
     }
 }
