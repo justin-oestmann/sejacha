@@ -169,8 +169,6 @@ public class User {
         return false;
     }
 
-    }
-
     public void login(String email, String password) {
         // TODO: LOGIN FUNCTION
     }
