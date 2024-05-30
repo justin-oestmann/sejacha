@@ -54,7 +54,7 @@ public class User {
                 this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
                 this.verify_code = result.getString("verify_code");
                 this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
-                this.authKey = result.getString("auth_key");
+                
             }
             return true;
 
@@ -81,7 +81,7 @@ public class User {
                 this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
                 this.verify_code = result.getString("verify_code");
                 this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
-                this.authKey = result.getString("auth_key");
+                
             }
             return true;
 
@@ -92,7 +92,8 @@ public class User {
     }
 
     public boolean save() {
-        // TODO: SAVE-FUNCTION
+        
+
         return false;
     }
 
