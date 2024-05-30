@@ -169,8 +169,11 @@ public class User {
         return false;
     }
 
-    public void login(String email, String password) {
-        // TODO: LOGIN FUNCTION
+    public boolean login(String email, String password) {
+        if (email == this.email && password == this.password) {
+            return true;
+        }
+        return false;
     }
 
     public String getID() {
