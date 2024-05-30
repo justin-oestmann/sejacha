@@ -246,7 +246,7 @@ public class ChatHandler {
         }
 
         SysPrinter.println(SysPrinterType.INFO,
-                "Welcome! Please input a command to continue. Type '/help room' for a list of available commands.");
+                "Welcome! Please input a command to continue. Type '/help' for a list of available commands.");
 
         while (true) {
             SysPrinter.printCursor();
