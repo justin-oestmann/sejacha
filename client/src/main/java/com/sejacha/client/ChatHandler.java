@@ -87,14 +87,14 @@ public class ChatHandler {
 
             @Override
             public void onLogoutSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onLogoutSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, "Logout success");
+                System.out.println("Logout successful.");
             }
 
             @Override
             public void onLogoutFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onLogoutFail'");
+                SysPrinter.println(SysPrinterType.ERROR, "Logout failed");
+                System.out.println("Logout failed. Try again.");
             }
 
             @Override
@@ -111,110 +111,114 @@ public class ChatHandler {
 
             @Override
             public void onRoomJoinSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomJoinSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, currentUser + "has joined the room" + rooms); // Raumname
+                                                                                                      // implementieren
+                System.out.println("You have joined the room: " + rooms); // Raumname implementieren
             }
 
             @Override
             public void onRoomJoinFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomJoinFail'");
+                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join the room" + rooms); // Raumname
+                                                                                                               // implementieren
+                System.out.println("Failed joining the room " + rooms); // Raumname implementieren
             }
 
             @Override
             public void onRoomJoinWPasswordSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomJoinWPasswordSuccess'");
+                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has joined the room" + rooms); // Raumname
+                                                                                                       // implementieren
+                System.out.println("You have joined the room: " + rooms); // Raumname implementieren
             }
 
             @Override
             public void onRoomJoinWPasswordFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomJoinWPasswordFail'");
+                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join the room" + rooms); // Raumname
+                                                                                                               // implementieren
+                System.out.println("Failed joining the room " + rooms); // Raumname implementieren
             }
 
             @Override
             public void onRoomLeaveSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomLeaveSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, "Left the room successfully");
+                System.out.println("You have left the room.");
             }
 
             @Override
             public void onRoomLeaveFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomLeaveFail'");
+                SysPrinter.println(SysPrinterType.ERROR, "Failed to leave the room");
+                System.out.println("Failed to leave the room.");
             }
 
             @Override
             public void onRoomCreateSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomCreateSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, "Room created successfully");
+                System.out.println("A new room has been created.");
             }
 
             @Override
             public void onRoomCreateFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomCreateFail'");
+                SysPrinter.println(SysPrinterType.ERROR, "Failed to create the room");
+                System.out.println("Failed to create the room.");
             }
 
             @Override
             public void onRoomGetInfoSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomGetInfoSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, "Room info retrieved successfully");
+                System.out.println("Room information: " + response.getRoomInfo());
             }
 
             @Override
             public void onRoomGetInfoFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomGetInfoFail'");
+                SysPrinter.println(SysPrinterType.ERROR, "Failed to retrieve room info");
+                System.out.println("Failed to retrieve room information.");
             }
 
             @Override
             public void onRoomInviteContactSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomInviteContactSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, "Contact invited successfully");
+                System.out.println("Contact has been invited to the room.");
             }
 
             @Override
             public void onRoomInviteContactFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onRoomInviteContactFail'");
+                SysPrinter.println(SysPrinterType.ERROR, "Failed to invite contact");
+                System.out.println("Failed to invite contact to the room.");
             }
 
             @Override
             public void onContactAddSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onContactAddSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, "Contact added successfully");
+                System.out.println("Contact has been added.");
             }
 
             @Override
             public void onContactAddFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onContactAddFail'");
+                SysPrinter.println(SysPrinterType.ERROR, "Failed to add contact");
+                System.out.println("Failed to add contact.");
             }
 
             @Override
             public void onContactRemoveSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onContactRemoveSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, "Contact removed successfully");
+                System.out.println("Contact has been removed.");
             }
 
             @Override
             public void onContactRemoveFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onContactRemoveFail'");
+                SysPrinter.println(SysPrinterType.ERROR, "Failed to remove contact");
+                System.out.println("Failed to remove contact.");
             }
 
             @Override
             public void onContactCreateDMRoomSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onContactCreateDMRoomSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, "DM room created successfully");
+                System.out.println("Direct message room has been created.");
             }
 
             @Override
             public void onContactCreateDMRoomFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onContactCreateDMRoomFail'");
+                SysPrinter.println(SysPrinterType.ERROR, "Failed to create DM room");
+                System.out.println("Failed to create direct message room.");
             }
         });
     }
@@ -267,11 +271,9 @@ public class ChatHandler {
                 case "/register":
                     handleRegister(scanner);
                     break;
-
                 case "/ping":
                     handlePing(scanner);
                     break;
-
                 case "/restart":
                     return;
 
