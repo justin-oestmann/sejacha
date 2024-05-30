@@ -1,13 +1,14 @@
+/**
+ * The {@code ServerClient} class represents a client connected to the server. 
+ * It manages communication with the client, handles incoming messages, and processes client requests.
+ */
 package com.sejacha.server;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
 import javax.mail.MessagingException;
-
 import org.json.JSONObject;
-
 import com.sejacha.server.exceptions.MissingParameterException;
 import com.sejacha.server.exceptions.SocketMessageIsNotNewException;
 import com.sejacha.server.exceptions.UserInvalidStateException;
@@ -17,9 +18,14 @@ public class ServerClient extends Thread {
     private List<ServerClient> clientList;
     private PrintWriter out;
     private BufferedReader in;
-
     private User user = null;
 
+    /**
+     * Constructs a {@code ServerClient} with the specified socket and client list.
+     *
+     * @param socket     the socket representing the client connection
+     * @param clientList the list of server clients
+     */
     public ServerClient(Socket socket, List<ServerClient> clientList) {
         this.socket = socket;
         this.clientList = clientList;
@@ -31,10 +37,18 @@ public class ServerClient extends Thread {
         }
     }
 
+    /**
+     * Sends a message to the client.
+     *
+     * @param message the message to send
+     */
     public void sendMessage(SocketMessage message) {
         out.println(message.toJSONString());
     }
 
+    /**
+     * Runs the server client thread, continuously listening for incoming messages.
+     */
     public void run() {
         while (true) {
             try {
@@ -56,24 +70,29 @@ public class ServerClient extends Thread {
                     return;
                 } catch (IOException e) {
                     e.printStackTrace();
-
                 }
             }
         }
     }
 
+    /**
+     * Handles incoming messages from the client.
+     *
+     * @param input the message received from the client
+     * @throws SocketMessageIsNotNewException if the socket message is not new and
+     *                                        cannot be modified
+     * @throws MissingParameterException      if required parameters are missing
+     */
     private void handleMessages(String input) throws SocketMessageIsNotNewException, MissingParameterException {
-
         SocketMessage socketMessage = new SocketMessage(input);
 
         if (this.user == null) {
             if (socketMessage.getType() == SocketMessageType.LOGIN) {
-
+                // Handle login logic
             }
 
             if (socketMessage.getType() == SocketMessageType.REGISTER) {
                 this.user = new User();
-
                 this.user.setName(socketMessage.getData().getString("name"));
                 this.user.setEmail(socketMessage.getData().getString("email"));
                 this.user.setPasswordHash(socketMessage.getData().getString("passwordhash"));
@@ -89,27 +108,20 @@ public class ServerClient extends Thread {
                 }
 
                 if (this.user.create()) {
-                    SysPrinter.println("ServerClient",
-                            "User has created account successfully (" + this.user.getID() + ")");
+                    SysPrinter.println("ServerClient", "User account created successfully (" + this.user.getID() + ")");
                     return;
                 }
-                SysPrinter.println("ServerClient",
-                        "User account creation failed");
+                SysPrinter.println("ServerClient", "User account creation failed");
                 this.user = null;
                 return;
             }
 
             if (socketMessage.getType() == SocketMessageType.PING) {
                 SysPrinter.println(this.socket, "ServerClient", "ping");
-
-                // this.user.login(socketMessage.getData().getString("email"),
-                // socketMessage.getData().getString("passwordhash"));
-
+                // Handle ping logic
             }
-
         } else {
-
+            // Handle logic for authenticated user
         }
-
     }
 }
