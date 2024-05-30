@@ -85,19 +85,23 @@ public class Database {
      */
     public static String getUniqueID(String DB) throws Exception {
         boolean isUnique = false;
-        String userID = null;
+        String ID = null;
 
-        PreparedStatement uid_check = null;
+        PreparedStatement ID_check = null;
 
         try {
             switch (DB) {
                 case "user":
-                    uid_check = Database.getConnection().prepareStatement(
+                    ID_check = Database.getConnection().prepareStatement(
                             "SELECT user_id FROM users WHERE user_id =?");
                     break;
                 case "room":
-                    uid_check = Database.getConnection().prepareStatement(
-                            "SELECT user_id FROM users WHERE user_id =?");
+                    ID_check = Database.getConnection().prepareStatement(
+                            "SELECT room_id FROM users WHERE room_id =?");
+                    break;
+                case "contacts":
+                    ID_check = Database.getConnection().prepareStatement(
+                            "SELECT contact_id FROM users WHERE contact_id =?");
                     break;
 
                 default:
@@ -105,18 +109,18 @@ public class Database {
             }
 
             while (!isUnique) {
-                userID = RandomString.generate(11);
-                uid_check.setString(1, userID);
-                ResultSet uid_check_result = uid_check.executeQuery();
-                if (!uid_check_result.next()) {
+                ID = RandomString.generate(8);
+                ID_check.setString(1, ID);
+                ResultSet ID_check_result = ID_check.executeQuery();
+                if (!ID_check_result.next()) {
                     isUnique = true;
                 }
             }
-            return userID;
+            return ID;
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return userID = null; // sollte nie passieren ig und das sollte von db abgefangen werden
+            return ID = null; // sollte nie passieren ig und das sollte von db abgefangen werden
         }
     }
 }
