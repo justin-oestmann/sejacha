@@ -1,4 +1,8 @@
-
+/**
+ * This class represents a User in the system with various attributes and methods 
+ * to manage user data, including loading from the database, saving, creating new users,
+ * and handling verification processes.
+ */
 package com.sejacha.server;
 
 import java.sql.Connection;
@@ -33,13 +37,24 @@ public class User {
     private String authKey = null; // ONLY LOCAL!!!
 
     public User() {
-
     }
 
+    /**
+     * Constructs a User object and loads user details from the database based on
+     * the given ID.
+     * 
+     * @param id the ID of the user
+     */
     public User(String id) {
         this.loadByID(id);
     }
 
+    /**
+     * Loads the user details from the database based on the given user ID.
+     * 
+     * @param id the ID of the user
+     * @return true if the user is successfully loaded, false otherwise
+     */
     public boolean loadByID(String id) {
         try {
             PreparedStatement statement = Database.getConnection().prepareStatement(
@@ -57,7 +72,6 @@ public class User {
                 this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
                 this.verify_code = result.getString("verify_code");
                 this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
-
             }
             return true;
 
@@ -67,6 +81,12 @@ public class User {
         return false;
     }
 
+    /**
+     * Loads the user details from the database based on the given email.
+     * 
+     * @param email the email of the user
+     * @return true if the user is successfully loaded, false otherwise
+     */
     public boolean loadByEmail(String email) {
         try {
             PreparedStatement statement = Database.getConnection().prepareStatement(
@@ -84,7 +104,6 @@ public class User {
                 this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
                 this.verify_code = result.getString("verify_code");
                 this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
-
             }
             return true;
 
@@ -94,10 +113,15 @@ public class User {
         return false;
     }
 
+    /**
+     * Saves the current state of the user to the database.
+     * 
+     * @return true if the user is successfully saved, false otherwise
+     */
     public boolean save() {
         try {
             PreparedStatement statement = Database.getConnection().prepareStatement(
-                    "UPDATE users SET user_name = ?, user_email = ?, user_password = ?, user_password_changed_at = ?, user_state = ?, user_updated_at = ?, user_email_verify_code = ?, user_email_verified_at = ?,");
+                    "UPDATE users SET user_name = ?, user_email = ?, user_password = ?, user_password_changed_at = ?, user_state = ?, user_updated_at = ?, user_email_verify_code = ?, user_email_verified_at = ? WHERE user_id = ?");
             statement.setString(1, this.name);
             statement.setString(2, this.email);
             statement.setString(3, this.password);
@@ -106,9 +130,10 @@ public class User {
             statement.setTimestamp(6, Timestamp.valueOf(this.user_updated_at));
             statement.setString(7, this.verify_code);
             statement.setTimestamp(8, Timestamp.valueOf(this.verified_at));
+            statement.setString(9, this.id);
 
-            ResultSet result = statement.executeQuery();
-            return result.rowUpdated();
+            int affectedRows = statement.executeUpdate();
+            return affectedRows > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -116,35 +141,31 @@ public class User {
         return false;
     }
 
+    /**
+     * Creates a new user in the database with the current attributes.
+     * 
+     * @return true if the user is successfully created, false otherwise
+     * @throws MissingParameterException if any required parameter is missing
+     */
     public boolean create() throws MissingParameterException {
-
-        if (id == null) {
+        if (id == null)
             throw new MissingParameterException("id");
-        }
-        if (name == null) {
+        if (name == null)
             throw new MissingParameterException("name");
-        }
-        if (email == null) {
+        if (email == null)
             throw new MissingParameterException("email");
-        }
-        if (password == null) {
+        if (password == null)
             throw new MissingParameterException("password");
-        }
-        if (password_changed_at == null) {
+        if (password_changed_at == null)
             throw new MissingParameterException("password_changed_at");
-        }
-        if (state == null) {
+        if (state == null)
             throw new MissingParameterException("state");
-        }
-        if (user_updated_at == null) {
+        if (user_updated_at == null)
             throw new MissingParameterException("user_updated_at");
-        }
-        if (verify_code == null) {
+        if (verify_code == null)
             throw new MissingParameterException("verify_code");
-        }
-        if (verified_at == null) {
+        if (verified_at == null)
             throw new MissingParameterException("verified_at");
-        }
 
         try {
             Connection connection = Database.getConnection();
@@ -161,7 +182,8 @@ public class User {
             statement.setString(8, this.verify_code);
             statement.setTimestamp(9, Timestamp.valueOf(this.verified_at));
 
-            return true;
+            int affectedRows = statement.executeUpdate();
+            return affectedRows > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -169,55 +191,110 @@ public class User {
         return false;
     }
 
+    /**
+     * Validates the user's login credentials.
+     * 
+     * @param email    the email of the user
+     * @param password the password of the user
+     * @return true if the credentials are correct, false otherwise
+     */
     public boolean login(String email, String password) {
-        if (email == this.email && password == this.password) {
-            return true;
-        }
-        return false;
+        return email.equals(this.email) && password.equals(this.password);
     }
 
+    /**
+     * Gets the ID of the user.
+     * 
+     * @return the user's ID
+     */
     public String getID() {
         return this.id;
     }
 
+    /**
+     * Sets the ID of the user.
+     * 
+     * @param id the new ID
+     */
     @SuppressWarnings("unused")
     private void setID(String id) {
         this.id = id;
         this.user_updated_at = LocalDateTime.now();
     }
 
+    /**
+     * Gets the name of the user.
+     * 
+     * @return the user's name
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * Sets the name of the user.
+     * 
+     * @param name the new name
+     */
     public void setName(String name) {
         this.name = name;
         this.user_updated_at = LocalDateTime.now();
     }
 
+    /**
+     * Gets the email of the user.
+     * 
+     * @return the user's email
+     */
     public String getEmail() {
         return this.email;
     }
 
+    /**
+     * Sets the email of the user.
+     * 
+     * @param email the new email
+     */
     public void setEmail(String email) {
         this.email = email;
         this.user_updated_at = LocalDateTime.now();
     }
 
+    /**
+     * Gets the hashed password of the user.
+     * 
+     * @return the user's hashed password
+     */
     @SuppressWarnings("unused")
     private String getPasswordHash() {
         return this.password;
     }
 
+    /**
+     * Sets the hashed password of the user.
+     * 
+     * @param password_hash the new hashed password
+     */
     public void setPasswordHash(String password_hash) {
         this.password = password_hash;
         this.password_changed_at = LocalDateTime.now();
     }
 
+    /**
+     * Gets the time when the password was last changed.
+     * 
+     * @return the time of the last password change
+     */
     public LocalDateTime getPasswordChangedAt() {
         return this.password_changed_at;
     }
 
+    /**
+     * Sends a verification code to the user's email.
+     * 
+     * @throws UserInvalidStateException if the user is not in the UNVERIFIED state
+     * @throws MessagingException        if there is an error sending the email
+     */
     public void sendVerificationCode() throws UserInvalidStateException, MessagingException {
         if (this.state != UserState.UNVERIFIED) {
             throw new UserInvalidStateException("user is not in the right state!");
@@ -225,10 +302,15 @@ public class User {
 
         this.authKey = RandomString.generateNumberCode(6);
         Mailing.sendEmail(this.getEmail(), Language.getText(LanguageText.EMAIL_VERIFY_SUBJECT), this.authKey);
-        return;
-
     }
 
+    /**
+     * Verifies the user's account with the given code.
+     * 
+     * @param codeString the verification code
+     * @return true if the account is successfully verified, false otherwise
+     * @throws UserInvalidStateException if the user is not in the UNVERIFIED state
+     */
     public boolean verifyAccount(String codeString) throws UserInvalidStateException {
         if (this.state != UserState.UNVERIFIED) {
             throw new UserInvalidStateException("user is not in the right state!");
@@ -243,6 +325,13 @@ public class User {
         return false;
     }
 
+    /**
+     * Verifies the given authentication key.
+     * 
+     * @param codeString the authentication key
+     * @return true if the key is correct, false otherwise
+     * @throws UserNoVerifyCodeExists if the authentication key does not exist
+     */
     public boolean verifyAuthKey(String codeString) throws UserNoVerifyCodeExists {
         if (this.authKey == null) {
             throw new UserNoVerifyCodeExists("authkey is null");
@@ -255,6 +344,11 @@ public class User {
         return false;
     }
 
+    /**
+     * Generates a new authentication key for the user.
+     * 
+     * @return the new authentication key
+     */
     public String generateAuthKey() {
         return this.authKey = RandomString.generate(32);
     }
