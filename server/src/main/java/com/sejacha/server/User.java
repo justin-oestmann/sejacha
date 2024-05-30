@@ -1,6 +1,9 @@
 
 package com.sejacha.server;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 import javax.mail.MessagingException;
@@ -35,7 +38,29 @@ public class User {
     }
 
     public boolean loadByID(String id) {
-        // TODO: LOAD-FUNCTION
+        try {
+            PreparedStatement statement = Database.getConnection().prepareStatement(
+                    "SELECT * FROM users WHERE id = ?");
+            statement.setString(1, id);
+
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                this.id = result.getString("id");
+                this.name = result.getString("name");
+                this.email = result.getString("email");
+                this.password = result.getString("password");
+                this.password_changed_at = result.getTimestamp("password_changed_at").toLocalDateTime();
+                this.state = UserState.fromInt(result.getInt("state"));
+                this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
+                this.verify_code = result.getString("verify_code");
+                this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
+                this.authKey = result.getString("auth_key");
+            }
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
