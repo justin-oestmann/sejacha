@@ -1,3 +1,7 @@
+/**
+ * The {@code SocketMessageType} enum defines a set of constants representing various types of socket messages.
+ * Each enum constant has an associated string name which can be used to identify the message type.
+ */
 package com.sejacha.server;
 
 public enum SocketMessageType {
@@ -39,9 +43,9 @@ public enum SocketMessageType {
     ROOM_GETINFO_RESPONSE_SUCCESS("room_getinfo_response_success"),
     ROOM_GETINFO_RESPONSE_FAIL("room_getinfo_response_fail"),
 
-    ROOM_INVITE_CONTACT("room_getinfo"),
-    ROOM_INVITE_CONTACT_RESPONSE_SUCCESS("room_getinfo_response_success"),
-    ROOM_INVITE_CONTACT_RESPONSE_FAIL("room_getinfo_response_fail"),
+    ROOM_INVITE_CONTACT("room_invite_contact"),
+    ROOM_INVITE_CONTACT_RESPONSE_SUCCESS("room_invite_contact_response_success"),
+    ROOM_INVITE_CONTACT_RESPONSE_FAIL("room_invite_contact_response_fail"),
 
     CONTACT_ADD("contact_add"),
     CONTACT_ADD_RESPONSE_SUCCESS("contact_add_response_success"),
@@ -51,20 +55,39 @@ public enum SocketMessageType {
     CONTACT_REMOVE_RESPONSE_SUCCESS("contact_remove_response_success"),
     CONTACT_REMOVE_RESPONSE_FAIL("contact_remove_response_fail"),
 
-    CONTACT_CREATE_DM_ROOM("contact_remove"),
-    CONTACT_CREATE_DM_ROOM_RESPONSE_SUCCESS("contact_remove_response_success"),
-    CONTACT_CREATE_DM_ROOM_RESPONSE_FAIL("contact_remove_response_fail");
+    CONTACT_CREATE_DM_ROOM("contact_create_dm_room"),
+    CONTACT_CREATE_DM_ROOM_RESPONSE_SUCCESS("contact_create_dm_room_response_success"),
+    CONTACT_CREATE_DM_ROOM_RESPONSE_FAIL("contact_create_dm_room_response_fail");
 
     private final String nameOfType;
 
+    /**
+     * Constructs a {@code SocketMessageType} with the specified string name.
+     *
+     * @param nameOfType the string name associated with the message type
+     */
     SocketMessageType(String nameOfType) {
         this.nameOfType = nameOfType;
     }
 
+    /**
+     * Returns the string name associated with the message type.
+     *
+     * @return the string name of the message type
+     */
     public String getNameOfType() {
         return nameOfType;
     }
 
+    /**
+     * Returns the {@code SocketMessageType} constant corresponding to the specified
+     * string name.
+     *
+     * @param text the string name of the message type
+     * @return the corresponding {@code SocketMessageType} constant
+     * @throws IllegalArgumentException if no constant with the specified string
+     *                                  name exists
+     */
     public static SocketMessageType fromString(String text) {
         for (SocketMessageType type : SocketMessageType.values()) {
             if (type.nameOfType.equalsIgnoreCase(text)) {
@@ -73,5 +96,4 @@ public enum SocketMessageType {
         }
         throw new IllegalArgumentException("No enum constant with text " + text);
     }
-
 }
