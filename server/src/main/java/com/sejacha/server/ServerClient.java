@@ -8,6 +8,7 @@ import javax.mail.MessagingException;
 
 import org.json.JSONObject;
 
+import com.sejacha.server.exceptions.MissingParameterException;
 import com.sejacha.server.exceptions.SocketMessageIsNotNewException;
 import com.sejacha.server.exceptions.UserInvalidStateException;
 
@@ -61,7 +62,7 @@ public class ServerClient extends Thread {
         }
     }
 
-    private void handleMessages(String input) throws SocketMessageIsNotNewException {
+    private void handleMessages(String input) throws SocketMessageIsNotNewException, MissingParameterException {
 
         SocketMessage socketMessage = new SocketMessage(input);
 
