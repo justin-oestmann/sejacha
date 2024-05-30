@@ -1,13 +1,16 @@
 
 package com.sejacha.server;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 import javax.mail.MessagingException;
 
+import com.sejacha.server.exceptions.MissingParameterException;
 import com.sejacha.server.exceptions.UserInvalidStateException;
 import com.sejacha.server.exceptions.UserNoVerifyCodeExists;
 
@@ -81,7 +84,7 @@ public class User {
                 this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
                 this.verify_code = result.getString("verify_code");
                 this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
-            
+
             }
             return true;
 
@@ -98,11 +101,11 @@ public class User {
             statement.setString(1, this.name);
             statement.setString(2, this.email);
             statement.setString(3, this.password);
-            statement.setTimestamp(4, this.password_changed_at);
+            statement.setTimestamp(4, Timestamp.valueOf(this.password_changed_at));
             statement.setInt(5, this.state.getNameOfType());
-            statement.setTimestamp(6, this.user_updated_at);
+            statement.setTimestamp(6, Timestamp.valueOf(this.user_updated_at));
             statement.setString(7, this.verify_code);
-            statement.setTimestamp(8, this.verified_at);
+            statement.setTimestamp(8, Timestamp.valueOf(this.verified_at));
 
             ResultSet result = statement.executeQuery();
             return result.rowUpdated();
@@ -113,9 +116,59 @@ public class User {
         return false;
     }
 
-    public boolean create() {
-        
+    public boolean create() throws MissingParameterException {
+
+        if (id == null) {
+            throw new MissingParameterException("id");
+        }
+        if (name == null) {
+            throw new MissingParameterException("name");
+        }
+        if (email == null) {
+            throw new MissingParameterException("email");
+        }
+        if (password == null) {
+            throw new MissingParameterException("password");
+        }
+        if (password_changed_at == null) {
+            throw new MissingParameterException("password_changed_at");
+        }
+        if (state == null) {
+            throw new MissingParameterException("state");
+        }
+        if (user_updated_at == null) {
+            throw new MissingParameterException("user_updated_at");
+        }
+        if (verify_code == null) {
+            throw new MissingParameterException("verify_code");
+        }
+        if (verified_at == null) {
+            throw new MissingParameterException("verified_at");
+        }
+
+        try {
+            Connection connection = Database.getConnection();
+            PreparedStatement statement = connection.prepareStatement(
+                    "INSERT INTO users (user_id, user_name, user_email, user_password, user_password_changed_at, user_state, user_updated_at, user_email_verify_code, user_email_verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+            statement.setString(1, this.id);
+            statement.setString(2, this.name);
+            statement.setString(3, this.email);
+            statement.setString(4, this.password);
+            statement.setTimestamp(5, Timestamp.valueOf(this.password_changed_at));
+            statement.setInt(6, this.state.getNameOfType());
+            statement.setTimestamp(7, Timestamp.valueOf(this.user_updated_at));
+            statement.setString(8, this.verify_code);
+            statement.setTimestamp(9, Timestamp.valueOf(this.verified_at));
+
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return false;
+    }
+
     }
 
     public void login(String email, String password) {
