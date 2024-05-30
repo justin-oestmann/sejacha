@@ -177,6 +177,7 @@ public class User {
         return this.id;
     }
 
+    @SuppressWarnings("unused")
     private void setID(String id) {
         this.id = id;
         this.user_updated_at = LocalDateTime.now();
@@ -200,6 +201,7 @@ public class User {
         this.user_updated_at = LocalDateTime.now();
     }
 
+    @SuppressWarnings("unused")
     private String getPasswordHash() {
         return this.password;
     }
