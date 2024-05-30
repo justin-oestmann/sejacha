@@ -15,6 +15,7 @@ public class Message {
     private String room_id;
     private String text;
     private boolean is_read;
+    private String attachment;
     private LocalDateTime timestamp;
 
     /**
@@ -128,7 +129,37 @@ public class Message {
      * @throws Exception if an error occurs during insertion
      */
     public boolean create() throws Exception {
-        // Method implementation
-        return false;
+        if (this.id != null) {
+            throw new Exception("id already set! Data may be already exists on database");
+        }
+
+        if (this.room_id == null) {
+            throw new Exception("room not set!");
+        }
+
+        if (this.user_id == null) {
+            throw new Exception("user_id not set!");
+        }
+
+        if (this.timestamp == null) {
+            throw new Exception("timestamp not set!");
+        }
+
+        if (this.text == null) {
+            throw new Exception("message not set!");
+        }
+
+        String query = "INSERT INTO messages (message_id,message_user_id,message_room_id,message_timestamp,message_text) VALUES (?,?,?,?,?)";
+        PreparedStatement stmt = Database.getConnection().prepareStatement(query);
+
+        stmt.setString(1, this.id);
+        stmt.setString(2, this.user_id);
+        stmt.setString(3, this.room_id);
+        stmt.setString(4, this.timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        stmt.setString(5, this.text);
+
+        ResultSet rs = stmt.executeQuery();
+        return rs.rowInserted();
     }
+
 }
