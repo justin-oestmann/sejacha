@@ -1,11 +1,8 @@
 package com.sejacha.client;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Scanner;
 
 import org.json.JSONObject;
@@ -99,42 +96,42 @@ public class ChatHandler {
 
             @Override
             public void onNewMessageSuccess(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onNewMessageSuccess'");
+                SysPrinter.println(SysPrinterType.INFO, "Message sent successfully");
+                System.out.println("Your message has been sent.");
             }
 
             @Override
             public void onNewMessageFail(SocketMessage response) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'onNewMessageFail'");
+                SysPrinter.println(SysPrinterType.ERROR, "Message failed to send");
+                System.out.println("Failed to send message.");
             }
 
             @Override
             public void onRoomJoinSuccess(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.INFO, currentUser + "has joined the room" + rooms); // Raumname
-                                                                                                      // implementieren
-                System.out.println("You have joined the room: " + rooms); // Raumname implementieren
+                String roomName = response.getRoomName();
+                SysPrinter.println(SysPrinterType.INFO, currentUser + "has joined the room" + roomName);
+                System.out.println("You have joined the room: " + roomName);
             }
 
             @Override
             public void onRoomJoinFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join the room" + rooms); // Raumname
-                                                                                                               // implementieren
-                System.out.println("Failed joining the room " + rooms); // Raumname implementieren
+                String roomName = response.getRoomName();
+                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join the room" + roomName);
+                System.out.println("Failed joining the room " + roomName);
             }
 
             @Override
             public void onRoomJoinWPasswordSuccess(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has joined the room" + rooms); // Raumname
-                                                                                                       // implementieren
-                System.out.println("You have joined the room: " + rooms); // Raumname implementieren
+                String roomName = response.getRoomName();
+                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has joined the room" + roomName);
+                System.out.println("You have joined the room: " + roomName);
             }
 
             @Override
             public void onRoomJoinWPasswordFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join the room" + rooms); // Raumname
-                                                                                                               // implementieren
-                System.out.println("Failed joining the room " + rooms); // Raumname implementieren
+                String roomName = response.getRoomName();
+                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join the room" + roomName);
+                System.out.println("Failed joining the room " + roomName);
             }
 
             @Override
@@ -246,6 +243,7 @@ public class ChatHandler {
                                 "Connection failed or disconnected again! Please type '/connect' to try again!>");
                     }
                 }
+                scanner.close();
             }
         }
 
