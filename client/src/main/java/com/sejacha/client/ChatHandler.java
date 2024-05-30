@@ -50,7 +50,7 @@ class Room {
 }
 
 public class ChatHandler {
-    private String[] commands = { "room", "help", "login", "register" };
+    private String[] commands = { "room", "help", "login", "register", "restart", "ping", "exit" };
     private String[] subCommands = { "create", "join", "delete", "help" };
     private List<Room> rooms = new ArrayList<>();
     private int nextRoomId = 1;
@@ -280,7 +280,7 @@ public class ChatHandler {
                     break;
 
                 default:
-                    System.out.println("Unknown command. Type '/help room' for a list of available commands.");
+                    System.out.println("Unknown command. Type '/help' for a list of available commands.");
                     break;
             }
         }
@@ -299,24 +299,24 @@ public class ChatHandler {
 
         String subCommand = inputParts[1];
         switch (subCommand) {
-            case "create":
+            case "/create":
                 handleRoomCreate(inputParts);
                 break;
-            case "join":
+            case "/join":
                 if (inputParts.length >= 3) {
                     handleRoomJoin(inputParts[2], scanner);
                 } else {
                     System.out.println("Usage: /room join <name>");
                 }
                 break;
-            case "delete":
+            case "/delete":
                 if (inputParts.length >= 3) {
                     handleRoomDelete(inputParts[2]);
                 } else {
                     System.out.println("Usage: /room delete <name>");
                 }
                 break;
-            case "help":
+            case "/help room":
                 handleRoomHelp();
                 break;
             default:
