@@ -58,9 +58,13 @@ public class ChatHandler {
     private boolean isAdmin = false;
     private SocketClient socketClient;
     private String authKey;
+    Config config = new Config("config.properties");
+    String ip = config.getProperty("ip");
+    int port = Integer.parseInt(config.getProperty("port"));
+    ChatHandler chatHandler = new ChatHandler(ip, port);
 
-    public ChatHandler() {
-        this.socketClient = new SocketClient("127.0.0.1", 4999, new SocketClientResponse() {
+    public ChatHandler(String ip, int port) {
+        this.socketClient = new SocketClient(ip, port, new SocketClientResponse() {
             public void onLoginSuccess(SocketMessage socketMessage) {
                 authKey = socketMessage.getAuthKey();
                 SysPrinter.println(SysPrinterType.INFO, "Login success");
