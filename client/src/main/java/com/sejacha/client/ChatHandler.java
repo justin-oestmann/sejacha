@@ -7,6 +7,8 @@ import java.util.Scanner;
 
 import org.json.JSONObject;
 
+import com.sejacha.client.exceptions.SocketMessageIsNotNewException;
+
 class Room {
     private int id;
     private String name;
@@ -57,23 +59,32 @@ public class ChatHandler {
     private String currentUser = null;
     private boolean isAdmin = false;
     private SocketClient socketClient;
-    private String authKey;
-    Config config = new Config("config.properties");
-    String ip = config.getProperty("ip");
-    int port = Integer.parseInt(config.getProperty("port"));
-    ChatHandler chatHandler = new ChatHandler(ip, port);
+    private String authKey = null;
+
+    private long pingTime = 0;
 
     public ChatHandler(String ip, int port) {
         this.socketClient = new SocketClient(ip, port, new SocketClientResponse() {
             public void onLoginSuccess(SocketMessage socketMessage) {
-                authKey = socketMessage.getAuthKey();
-                SysPrinter.println(SysPrinterType.INFO, "Login success");
-                System.out.println("Login successful. Welcome, " + currentUser + "!");
+                try {
+                    authKey = socketMessage.getData().getString("authkey");
+                    currentUser = socketMessage.getData().getString("username");
+                } catch (Exception ex) {
+                    authKey = null;
+                    currentUser = null;
+                    SysPrinter.println(SysPrinterType.ERROR, "Login failed. Please try again. (clientside failure)");
+                    return;
+                }
+                SysPrinter.clear();
+                SysPrinter.setCursorDouble(true);
+                SysPrinter.println(SysPrinterType.INFO, "Login successful. Welcome, " + currentUser + "!");
+                SysPrinter.printCursor();
+
             }
 
             public void onLoginFail(SocketMessage socketMessage) {
-                SysPrinter.println(SysPrinterType.ERROR, "Login failed");
-                System.out.println("Incorrect username or password. Please try again.");
+                SysPrinter.println(SysPrinterType.ERROR, "Incorrect username or password. Please try again.");
+                SysPrinter.printCursor();
             }
 
             public void onRegisterSuccess(SocketMessage socketMessage) {
@@ -88,14 +99,14 @@ public class ChatHandler {
 
             @Override
             public void onLogoutSuccess(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.INFO, "Logout success");
-                System.out.println("Logout successful.");
+                SysPrinter.println(SysPrinterType.INFO, "Logout successful.");
+                SysPrinter.setCursorDouble(false);
+                SysPrinter.printCursor();
             }
 
             @Override
             public void onLogoutFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Logout failed");
-                System.out.println("Logout failed. Try again.");
+                SysPrinter.println(SysPrinterType.ERROR, "Logout failed. Try again.");
             }
 
             @Override
@@ -112,30 +123,34 @@ public class ChatHandler {
 
             @Override
             public void onRoomJoinSuccess(SocketMessage response) {
-                String roomName = response.getRoomName();
-                SysPrinter.println(SysPrinterType.INFO, currentUser + "has joined the room" + roomName);
-                System.out.println("You have joined the room: " + roomName);
+                // String roomName = response.getRoomName();
+                // SysPrinter.println(SysPrinterType.INFO, currentUser + "has joined the room" +
+                // roomName);
+                // System.out.println("You have joined the room: " + roomName);
             }
 
             @Override
             public void onRoomJoinFail(SocketMessage response) {
-                String roomName = response.getRoomName();
-                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join the room" + roomName);
-                System.out.println("Failed joining the room " + roomName);
+                // String roomName = response.getRoomName();
+                // SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join
+                // the room" + roomName);
+                // System.out.println("Failed joining the room " + roomName);
             }
 
             @Override
             public void onRoomJoinWPasswordSuccess(SocketMessage response) {
-                String roomName = response.getRoomName();
-                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has joined the room" + roomName);
-                System.out.println("You have joined the room: " + roomName);
+                // String roomName = response.getRoomName();
+                // SysPrinter.println(SysPrinterType.ERROR, currentUser + "has joined the room"
+                // + roomName);
+                // System.out.println("You have joined the room: " + roomName);
             }
 
             @Override
             public void onRoomJoinWPasswordFail(SocketMessage response) {
-                String roomName = response.getRoomName();
-                SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join the room" + roomName);
-                System.out.println("Failed joining the room " + roomName);
+                // String roomName = response.getRoomName();
+                // SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join
+                // the room" + roomName);
+                // System.out.println("Failed joining the room " + roomName);
             }
 
             @Override
@@ -164,8 +179,8 @@ public class ChatHandler {
 
             @Override
             public void onRoomGetInfoSuccess(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.INFO, "Room info retrieved successfully");
-                System.out.println("Room information: " + response.getRoomInfo());
+                // SysPrinter.println(SysPrinterType.INFO, "Room info retrieved successfully");
+                // System.out.println("Room information: " + response.getRoomInfo());
             }
 
             @Override
@@ -219,13 +234,21 @@ public class ChatHandler {
             @Override
             public void onContactCreateDMRoomFail(SocketMessage response) {
                 SysPrinter.println(SysPrinterType.ERROR, "Failed to create DM room");
-                System.out.println("Failed to create direct message room.");
+                SysPrinter.printCursor();
+            }
+
+            @Override
+            public void onPing(SocketMessage response) {
+                long endTime = System.currentTimeMillis();
+                long duration = endTime - pingTime;
+                SysPrinter.println(SysPrinterType.INFO, "PING:" + duration + " ms!");
+                SysPrinter.printCursor();
             }
         });
     }
 
-    public void run() {
-
+    public void run() throws SocketMessageIsNotNewException {
+        SysPrinter.setCursorDouble(false);
         Scanner scanner = new Scanner(System.in);
         String input;
 
@@ -260,32 +283,56 @@ public class ChatHandler {
 
             String[] inputParts = input.split(" ");
             String command = inputParts[0];
-            switch (command) {
-                case "/room":
-                    handleRoom(inputParts, scanner);
-                    break;
-                case "/help":
-                    handleHelp();
-                    break;
-                case "/login":
-                    handleLogin(scanner);
-                    break;
-                case "/register":
-                    handleRegister(scanner);
-                    break;
-                case "/ping":
-                    handlePing(scanner);
-                    break;
-                case "/restart":
-                    return;
+            if (this.authKey != null) {
+                switch (command) {
+                    case "/room":
+                        handleRoom(inputParts, scanner);
+                        break;
+                    case "/help":
+                        handleHelp();
+                        break;
+                    case "/ping":
+                        handlePing(scanner);
+                        break;
+                    case "/restart":
+                        SysPrinter.clear();
+                        return;
+                    case "/exit":
+                        System.exit(0);
+                        break;
+                    case "/logout":
+                        handleLogout(scanner);
+                        break;
 
-                case "/exit":
-                    System.exit(0);
-                    break;
+                    default:
+                        System.out.println("Unknown command. Type '/help' for a list of available commands.");
+                        break;
+                }
 
-                default:
-                    System.out.println("Unknown command. Type '/help' for a list of available commands.");
-                    break;
+            } else {
+                switch (command) {
+                    case "/login":
+                        handleLogin(scanner);
+                        break;
+                    case "/register":
+                        handleRegister(scanner);
+                        break;
+                    case "/help":
+                        handleHelp();
+                        break;
+                    case "/restart":
+                        SysPrinter.clear();
+                        return;
+                    case "/exit":
+                        System.exit(0);
+                        break;
+                    case "/ping":
+                        handlePing(scanner);
+                        break;
+                    default:
+                        System.out.println("Unknown command. Type '/help' for a list of available commands.");
+                        break;
+                }
             }
         }
     }
@@ -431,8 +478,8 @@ public class ChatHandler {
         }
     }
 
-    private void handleLogin(Scanner scanner) {
-        System.out.print("Enter username: ");
+    private void handleLogin(Scanner scanner) throws SocketMessageIsNotNewException {
+        System.out.print("Enter email: ");
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
@@ -440,7 +487,11 @@ public class ChatHandler {
         socketClient.login(username, password);
     }
 
-    private void handleRegister(Scanner scanner) {
+    private void handleLogout(Scanner scanner) throws SocketMessageIsNotNewException {
+        socketClient.logout(this.authKey);
+    }
+
+    private void handleRegister(Scanner scanner) throws SocketMessageIsNotNewException {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
@@ -449,7 +500,7 @@ public class ChatHandler {
         socketClient.register(username, password);
     }
 
-    private void handlePing(Scanner scanner) {
+    private void handlePing(Scanner scanner) throws SocketMessageIsNotNewException {
 
         SocketMessage socketMessage = new SocketMessage();
 
@@ -463,6 +514,7 @@ public class ChatHandler {
         socketMessage.setAuthKey(null);
 
         socketClient.sendMessage(socketMessage);
+        pingTime = System.currentTimeMillis();
 
         SysPrinter.println(SysPrinterType.INFO, "ping sent!");
     }
