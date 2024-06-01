@@ -191,16 +191,16 @@ public class User {
         return false;
     }
 
-    /**
-     * Validates the user's login credentials.
-     * 
-     * @param email    the email of the user
-     * @param password the password of the user
-     * @return true if the credentials are correct, false otherwise
-     */
-    public boolean login(String email, String password) {
-        return email.equals(this.email) && password.equals(this.password);
-    }
+    // /**
+    // * Validates the user's login credentials.
+    // *
+    // * @param email the email of the user
+    // * @param password the password of the user
+    // * @return true if the credentials are correct, false otherwise
+    // */
+    // public boolean login(String email, String password) {
+    // return email.equals(this.email) && password.equals(this.password);
+    // }
 
     /**
      * Gets the ID of the user.
@@ -351,6 +351,10 @@ public class User {
      */
     public String generateAuthKey() {
         return this.authKey = RandomString.generate(32);
+    }
+
+    public boolean verifyPassword(String passwordHash) {
+        return this.password.equals(passwordHash);
     }
 
 }
