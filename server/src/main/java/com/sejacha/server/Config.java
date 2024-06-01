@@ -12,7 +12,7 @@ public class Config {
 
         try {
             input = new FileInputStream(
-                    ".\\config.properties");
+                    "server\\config.properties");
             properties.load(input);
 
             return properties.getProperty(v);
