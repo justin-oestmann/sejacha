@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import com.sejacha.server.exceptions.MissingParameterException;
 import com.sejacha.server.exceptions.SocketMessageIsNotNewException;
 import com.sejacha.server.exceptions.UserInvalidStateException;
+import com.sejacha.server.exceptions.UserNoVerifyCodeExists;
 
 public class ServerClient extends Thread {
     private Socket socket;
@@ -30,6 +31,8 @@ public class ServerClient extends Thread {
         this.socket = socket;
         this.clientList = clientList;
         try {
+            SysPrinter.println("SocketClient",
+                    "Client connected (" + this.socket.getInetAddress() + ")");
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
@@ -82,13 +85,61 @@ public class ServerClient extends Thread {
      * @throws SocketMessageIsNotNewException if the socket message is not new and
      *                                        cannot be modified
      * @throws MissingParameterException      if required parameters are missing
+     * @throws UserNoVerifyCodeExists
      */
-    private void handleMessages(String input) throws SocketMessageIsNotNewException, MissingParameterException {
+    private void handleMessages(String input)
+            throws SocketMessageIsNotNewException, MissingParameterException, UserNoVerifyCodeExists {
         SocketMessage socketMessage = new SocketMessage(input);
-
+        SysPrinter.println("debug", input);
         if (this.user == null) {
             if (socketMessage.getType() == SocketMessageType.LOGIN) {
-                // Handle login logic
+
+                this.user = new User();
+
+                if (!socketMessage.getData().has("email") || !socketMessage.getData().has("password")) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGIN_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "email or password not set!"));
+                    this.sendMessage(returnMessage);
+                    this.user = null;
+
+                    SysPrinter.println(socket, SocketMessageType.LOGIN.getNameOfType(), "invalid credentials");
+
+                    return;
+                }
+
+                if (!this.user.loadByEmail(socketMessage.getData().getString("email"))) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGIN_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "loading account failed!"));
+                    this.sendMessage(returnMessage);
+                    this.user = null;
+
+                    SysPrinter.println(socket, SocketMessageType.LOGIN.getNameOfType(), "loading failed");
+
+                    return;
+                }
+
+                if (!this.user.verifyPassword(socketMessage.getData().getString("password"))) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGIN_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "email or password are invalid!"));
+                    this.sendMessage(returnMessage);
+                    this.user = null;
+
+                    SysPrinter.println(socket, SocketMessageType.LOGIN.getNameOfType(), "password invalid");
+
+                    return;
+                }
+                JSONObject returnJsonObject = new JSONObject();
+                returnJsonObject.put("username", this.user.getName());
+                returnJsonObject.put("authkey", this.user.generateAuthKey());
+
+                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGIN_RESPONSE_SUCCESS,
+                        returnJsonObject);
+                this.sendMessage(returnMessage);
+
+                SysPrinter.println(socket, SocketMessageType.LOGIN.getNameOfType(), "successful");
+
+                return;
+
             }
 
             if (socketMessage.getType() == SocketMessageType.REGISTER) {
@@ -118,10 +169,26 @@ public class ServerClient extends Thread {
 
             if (socketMessage.getType() == SocketMessageType.PING) {
                 SysPrinter.println(this.socket, "ServerClient", "ping");
-                // Handle ping logic
+                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.PING, null);
+                this.sendMessage(returnMessage);
             }
         } else {
-            // Handle logic for authenticated user
+            if (socketMessage.getType() == SocketMessageType.LOGOUT) {
+
+                if (this.user.verifyAuthKey(socketMessage.getAuthKey())) {
+
+                    this.user = null;
+
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGIN_RESPONSE_SUCCESS,
+                            null);
+                    this.sendMessage(returnMessage);
+                    return;
+                }
+                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGIN_RESPONSE_FAIL,
+                        null);
+                this.sendMessage(returnMessage);
+                return;
+            }
         }
     }
 }
