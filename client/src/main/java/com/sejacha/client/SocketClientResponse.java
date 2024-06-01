@@ -1,6 +1,8 @@
 package com.sejacha.client;
 
 interface SocketClientResponse {
+    void onPing(SocketMessage response);
+
     void onLoginSuccess(SocketMessage response);
 
     void onLoginFail(SocketMessage response);
