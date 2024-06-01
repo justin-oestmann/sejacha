@@ -36,8 +36,6 @@ public class Database {
                 // Establish the database connection
                 connection = DriverManager.getConnection(url, Config.getConfig("mysql.user"),
                         Config.getConfig("mysql.password"));
-                // connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
-                // ResultSet.CONCUR_READ_ONLY)
                 SysPrinter.println("MYSQL-Database", "Connected to database!");
             } catch (SQLException e) {
                 SysPrinter.println("MYSQL-Database", "Error while connecting to database: " + e.getMessage());
