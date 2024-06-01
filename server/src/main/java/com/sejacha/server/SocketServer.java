@@ -80,21 +80,20 @@ public class SocketServer {
      *         connections
      */
     private Runnable handleServer(ServerSocket serverSocket) {
-        SysPrinter.println("SocketServer", "Starting to handle clients...");
-        return () -> {
-            while (true) {
-                try {
-                    Socket socket = serverSocket.accept();
-                    SysPrinter.println("SocketServer",
-                            "Client connected (" + socket.getInetAddress() + ":" + socket.getPort() + ")");
+        SysPrinter.println("SocketClient", "starting handling clients...");
+        while (true) {
+            try {
+                Socket socket = serverSocket.accept();
 
-                    ServerClient client = new ServerClient(socket, this.clients);
-                    clients.add(client);
-                    client.start();
-                } catch (Exception ex) {
-                    SysPrinter.println(ex);
-                }
+                ServerClient client = new ServerClient(socket, this.clients);
+
+                clients.add(client);
+                client.start();
+
+            } catch (Exception ex) {
+
             }
-        };
+        }
+
     }
 }
