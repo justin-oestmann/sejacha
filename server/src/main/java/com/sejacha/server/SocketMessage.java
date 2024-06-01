@@ -21,6 +21,24 @@ public class SocketMessage {
     }
 
     /**
+     * Constructs an {@code SocketMessage}.
+     * 
+     * @param authkey Authkey of user. if not available set to {@code null}
+     * @param type    MessageType of Message
+     * @param data    Data of Message. if not available set to {@code null}
+     */
+    public SocketMessage(String authkey, SocketMessageType type, JSONObject data) {
+        this.authKey = null;
+        this.data = null;
+        if (!authkey.equals(null)) {
+            this.authKey = authkey;
+        }
+        if (!this.data.equals(null)) {
+            this.data = data;
+        }
+    }
+
+    /**
      * Constructs a {@code SocketMessage} by importing data from a JSON string.
      *
      * @param jsonString the JSON string representing the socket message
