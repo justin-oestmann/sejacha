@@ -30,10 +30,11 @@ public class SocketMessage {
     public SocketMessage(String authkey, SocketMessageType type, JSONObject data) {
         this.authKey = null;
         this.data = null;
-        if (!authkey.equals(null)) {
+        this.type = type;
+        if (authkey != null) {
             this.authKey = authkey;
         }
-        if (!this.data.equals(null)) {
+        if (data != null) {
             this.data = data;
         }
     }
