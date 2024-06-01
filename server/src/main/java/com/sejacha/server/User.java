@@ -58,20 +58,27 @@ public class User {
     public boolean loadByID(String id) {
         try {
             PreparedStatement statement = Database.getConnection().prepareStatement(
-                    "SELECT * FROM users WHERE user_id = ?");
+                    "SELECT * FROM users WHERE user_id = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY);
             statement.setString(1, id);
 
             ResultSet result = statement.executeQuery();
+
+            if (!result.next()) {
+                return false;
+            }
+            result.beforeFirst();
+
             while (result.next()) {
-                this.id = result.getString("id");
-                this.name = result.getString("name");
-                this.email = result.getString("email");
-                this.password = result.getString("password");
-                this.password_changed_at = result.getTimestamp("password_changed_at").toLocalDateTime();
-                this.state = UserState.fromInt(result.getInt("state"));
+                this.id = result.getString("user_id");
+                this.name = result.getString("user_name");
+                this.email = result.getString("user_email");
+                this.password = result.getString("user_password");
+                this.password_changed_at = result.getTimestamp("user_password_changed_at").toLocalDateTime();
+                this.state = UserState.fromInt(result.getInt("user_state"));
                 this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
-                this.verify_code = result.getString("verify_code");
-                this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
+                this.verify_code = result.getString("user_email_verify_code");
+                this.verified_at = result.getTimestamp("user_email_verified_at").toLocalDateTime();
             }
             return true;
 
@@ -90,24 +97,34 @@ public class User {
     public boolean loadByEmail(String email) {
         try {
             PreparedStatement statement = Database.getConnection().prepareStatement(
-                    "SELECT * FROM users WHERE user_email = ?");
+                    "SELECT * FROM users WHERE user_email = ?", ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY);
             statement.setString(1, email);
 
             ResultSet result = statement.executeQuery();
-            while (result.next()) {
-                this.id = result.getString("id");
-                this.name = result.getString("name");
-                this.email = result.getString("email");
-                this.password = result.getString("password");
-                this.password_changed_at = result.getTimestamp("password_changed_at").toLocalDateTime();
-                this.state = UserState.fromInt(result.getInt("state"));
-                this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
-                this.verify_code = result.getString("verify_code");
-                this.verified_at = result.getTimestamp("verified_at").toLocalDateTime();
+
+            if (!result.next()) {
+                return false;
             }
+            result.beforeFirst();
+
+            while (result.next()) {
+                this.id = result.getString("user_id");
+                this.name = result.getString("user_name");
+                this.email = result.getString("user_email");
+                this.password = result.getString("user_password");
+                this.password_changed_at = result.getTimestamp("user_password_changed_at").toLocalDateTime();
+                this.state = UserState.fromInt(result.getInt("user_state"));
+                this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
+                this.verify_code = result.getString("user_email_verify_code");
+                this.verified_at = result.getTimestamp("user_email_verified_at").toLocalDateTime();
+            }
+
             return true;
 
-        } catch (SQLException e) {
+        } catch (
+
+        SQLException e) {
             e.printStackTrace();
         }
         return false;
