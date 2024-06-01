@@ -5,6 +5,8 @@ import java.net.*;
 
 import org.json.JSONObject;
 
+import com.sejacha.client.exceptions.SocketMessageIsNotNewException;
+
 public class SocketClient {
     private Socket socket;
     private PrintWriter out;
@@ -45,6 +47,8 @@ public class SocketClient {
                             this.handleResponses(serverResponse);
                         }
 
+                    } catch (SocketException ex) {
+
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -70,7 +74,7 @@ public class SocketClient {
     }
 
     private void handleResponses(String responseString) {
-        SysPrinter.println("test", responseString);
+        // SysPrinter.println("DataString", responseString);
         SocketMessage socketMessage = new SocketMessage(responseString);
 
         switch (socketMessage.getType()) {
@@ -179,19 +183,23 @@ public class SocketClient {
                 this.onContactCreateDMRoomFail(socketMessage);
                 break;
 
+            case PING:
+                this.onPing(socketMessage);
+                break;
+
             default:
                 SysPrinter.println("Server", "sent invalid message");
                 break;
         }
     }
 
-    public void login(String username, String password) {
+    public void login(String email, String password) throws SocketMessageIsNotNewException {
         SocketMessage socketMessage = new SocketMessage();
 
         socketMessage.setType(SocketMessageType.LOGIN);
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("username", username);
+        jsonObject.put("email", email);
         jsonObject.put("password", Crypt.calculateSHA512(password));
 
         socketMessage.setData(jsonObject);
@@ -199,7 +207,16 @@ public class SocketClient {
         this.sendMessage(socketMessage);
     }
 
-    public void register(String username, String password) {
+    public void logout(String authKey) throws SocketMessageIsNotNewException {
+        SocketMessage socketMessage = new SocketMessage();
+
+        socketMessage.setType(SocketMessageType.LOGOUT);
+        socketMessage.setAuthKey(authKey);
+
+        this.sendMessage(socketMessage);
+    }
+
+    public void register(String username, String password) throws SocketMessageIsNotNewException {
         SocketMessage socketMessage = new SocketMessage();
 
         socketMessage.setType(SocketMessageType.REGISTER);
@@ -315,5 +332,9 @@ public class SocketClient {
 
     private void onContactCreateDMRoomFail(SocketMessage socketMessage) {
         socketClientResponse.onContactCreateDMRoomFail(socketMessage);
+    }
+
+    private void onPing(SocketMessage socketMessage) {
+        socketClientResponse.onPing(socketMessage);
     }
 }
