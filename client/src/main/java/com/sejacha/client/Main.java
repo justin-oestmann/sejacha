@@ -3,9 +3,19 @@ package com.sejacha.client;
 public class Main {
     public static void main(String[] args) throws Exception {
         ChatHandler chatHandler;
+        String ip;
+        int port;
+        Config config = new Config("client\\\\config.properties");
+        try {
+            ip = config.getProperty("ip");
+            port = Integer.valueOf(config.getProperty("port"));
+        } catch (Exception ex) {
+            ip = "127.0.0.1";
+            port = 4999;
+        }
 
         while (true) {
-            chatHandler = new ChatHandler();
+            chatHandler = new ChatHandler(ip, port);
             chatHandler.run();
         }
 
