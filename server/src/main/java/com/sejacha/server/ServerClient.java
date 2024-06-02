@@ -9,10 +9,8 @@ import java.net.*;
 import java.util.*;
 import javax.mail.MessagingException;
 import org.json.JSONObject;
-import com.sejacha.server.exceptions.MissingParameterException;
-import com.sejacha.server.exceptions.SocketMessageIsNotNewException;
+
 import com.sejacha.server.exceptions.UserInvalidStateException;
-import com.sejacha.server.exceptions.UserNoVerifyCodeExists;
 
 public class ServerClient extends Thread {
     private Socket socket;
@@ -32,7 +30,7 @@ public class ServerClient extends Thread {
         this.clientList = clientList;
         try {
             SysPrinter.println("SocketClient",
-                    "Client connected (" + this.socket.getInetAddress() + ")");
+                    "client connected (" + this.socket.getInetAddress() + ":" + this.socket.getPort() + ")");
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
@@ -61,7 +59,8 @@ public class ServerClient extends Thread {
                 }
             } catch (SocketException e) {
                 SysPrinter.println("SocketClient",
-                        "Client disconnected (" + this.socket.getInetAddress() + ")(" + e.getMessage() + ")");
+                        "client disconnected (" + this.socket.getInetAddress() + ":" + this.socket.getPort()
+                                + ")(" + e.getMessage() + ")");
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -82,13 +81,10 @@ public class ServerClient extends Thread {
      * Handles incoming messages from the client.
      *
      * @param input the message received from the client
-     * @throws SocketMessageIsNotNewException if the socket message is not new and
-     *                                        cannot be modified
-     * @throws MissingParameterException      if required parameters are missing
-     * @throws UserNoVerifyCodeExists
+     * @throws Exception
      */
     private void handleMessages(String input)
-            throws SocketMessageIsNotNewException, MissingParameterException, UserNoVerifyCodeExists {
+            throws Exception {
         SocketMessage socketMessage = new SocketMessage(input);
         SysPrinter.println("debug", input);
         if (this.user == null) {
@@ -144,26 +140,34 @@ public class ServerClient extends Thread {
 
             if (socketMessage.getType() == SocketMessageType.REGISTER) {
                 this.user = new User();
-                this.user.setName(socketMessage.getData().getString("name"));
+                this.user.setName(socketMessage.getData().getString("username"));
                 this.user.setEmail(socketMessage.getData().getString("email"));
-                this.user.setPasswordHash(socketMessage.getData().getString("passwordhash"));
+                this.user.setPasswordHash(socketMessage.getData().getString("password"));
+
+                this.user.genID();
 
                 try {
                     this.user.sendVerificationCode();
                 } catch (UserInvalidStateException ex) {
                     SysPrinter.println("ServerClient", "User has invalid state");
                     this.user = null;
+                    return;
                 } catch (MessagingException ex) {
                     SysPrinter.println("ServerClient", "ERROR while sending verification-mail (" + ex + ")");
                     this.user = null;
-                }
-
-                if (this.user.create()) {
-                    SysPrinter.println("ServerClient", "User account created successfully (" + this.user.getID() + ")");
                     return;
                 }
-                SysPrinter.println("ServerClient", "User account creation failed");
-                this.user = null;
+
+                if (!this.user.create()) {
+                    SysPrinter.println("ServerClient", "User account creation failed");
+                    this.user = null;
+                    this.sendMessage(new SocketMessage(null, SocketMessageType.REGISTER_RESPONSE_FAIL, null));
+                    return;
+                }
+                SysPrinter.println("ServerClient", "User account created successfully (" + this.user.getID() + ")");
+
+                this.sendMessage(new SocketMessage(null, SocketMessageType.REGISTER_RESPONSE_SUCCESS, null));
+
                 return;
             }
 
@@ -179,14 +183,16 @@ public class ServerClient extends Thread {
 
                     this.user = null;
 
-                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGIN_RESPONSE_SUCCESS,
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGOUT_RESPONSE_SUCCESS,
                             null);
                     this.sendMessage(returnMessage);
+                    SysPrinter.println(socket, SocketMessageType.LOGOUT.getNameOfType(), "successful");
                     return;
                 }
-                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGIN_RESPONSE_FAIL,
+                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGOUT_RESPONSE_FAIL,
                         null);
                 this.sendMessage(returnMessage);
+                SysPrinter.println(socket, SocketMessageType.LOGOUT.getNameOfType(), "failed");
                 return;
             }
         }
