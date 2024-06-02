@@ -86,6 +86,34 @@ public class Database {
         }
     }
 
+    // public boolean checkDuplicate(String value, String table, String row) throws SQLException {
+    //     // Validate table and row names to prevent SQL Injection
+    //     if (!isValidIdentifier(table) || !isValidIdentifier(row)) {
+    //         throw new IllegalArgumentException("Invalid table or row identifier");
+    //     }
+
+    //     String query = "SELECT 1 FROM " + table + " WHERE " + row + " = ?";
+
+    //     try (Connection connection = Database.getConnection();
+    //             PreparedStatement statement = connection.prepareStatement(query)) {
+
+    //         statement.setString(1, value);
+
+    //         try (ResultSet result = statement.executeQuery()) {
+    //             return result.next();
+    //         }
+    //     } catch (SQLException e) {
+    //         e.printStackTrace();
+    //         throw e;
+    //     }
+    // }
+
+    // private boolean isValidIdentifier(String identifier) {
+    //     // Add your validation logic here (e.g., regex to check for valid SQL
+    //     // identifiers)
+    //     return identifier != null && identifier.matches("[a-zA-Z_][a-zA-Z0-9_]*");
+    // }
+
     /**
      * Generates a unique ID for the specified database entity.
      * 
