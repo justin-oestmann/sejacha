@@ -79,6 +79,14 @@ public class SocketClient {
 
         switch (socketMessage.getType()) {
 
+            case VERIFY_RESPONSE_SUCCESS:
+                this.onVerifySuccess(socketMessage);
+                break;
+
+            case VERIFY_RESPONSE_FAIL:
+                this.onVerifyFail(socketMessage);
+                break;
+
             case LOGIN_RESPONSE_SUCCESS:
                 this.onLoginSuccess(socketMessage);
                 break;
@@ -229,6 +237,14 @@ public class SocketClient {
         socketMessage.setData(jsonObject);
 
         this.sendMessage(socketMessage);
+    }
+
+    private void onVerifySuccess(SocketMessage socketMessage) {
+        socketClientResponse.onVerifySuccess(socketMessage);
+    }
+
+    private void onVerifyFail(SocketMessage socketMessage) {
+        socketClientResponse.onVerifyFail(socketMessage);
     }
 
     private void onLoginSuccess(SocketMessage socketMessage) {
