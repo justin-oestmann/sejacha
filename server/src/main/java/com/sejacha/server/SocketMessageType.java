@@ -7,6 +7,10 @@ package com.sejacha.server;
 public enum SocketMessageType {
     PING("ping"),
 
+    VERIFY("verify"),
+    VERIFY_RESPONSE_SUCCESS("verify_response_success"),
+    VERIFY_RESPONSE_FAIL("verify_response_fail"),
+
     LOGIN("login"),
     LOGIN_RESPONSE_SUCCESS("login_response_success"),
     LOGIN_RESPONSE_FAIL("login_response_fail"),
