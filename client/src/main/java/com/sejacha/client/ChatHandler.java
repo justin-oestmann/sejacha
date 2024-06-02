@@ -88,18 +88,20 @@ public class ChatHandler {
             }
 
             public void onRegisterSuccess(SocketMessage socketMessage) {
-                SysPrinter.println(SysPrinterType.INFO, "Register success");
-                System.out.println("Registration successful! You can now log in.");
+                SysPrinter.println(SysPrinterType.INFO, "Registration successful! You can now log in.");
+                SysPrinter.printCursor();
             }
 
             public void onRegisterFail(SocketMessage socketMessage) {
-                SysPrinter.println(SysPrinterType.ERROR, "Register failed");
-                System.out.println("Registration failed. Username might already be taken.");
+                SysPrinter.println(SysPrinterType.ERROR, "Registration failed. Username might already be taken.");
+                SysPrinter.printCursor();
             }
 
             @Override
             public void onLogoutSuccess(SocketMessage response) {
                 SysPrinter.println(SysPrinterType.INFO, "Logout successful.");
+                authKey = null;
+                currentUser = null;
                 SysPrinter.setCursorDouble(false);
                 SysPrinter.printCursor();
             }
@@ -494,10 +496,12 @@ public class ChatHandler {
     private void handleRegister(Scanner scanner) throws SocketMessageIsNotNewException {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
+        System.out.print("Enter email: ");
+        String email = scanner.nextLine();
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        socketClient.register(username, password);
+        socketClient.register(username, email, password);
     }
 
     private void handlePing(Scanner scanner) throws SocketMessageIsNotNewException {
