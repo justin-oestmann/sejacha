@@ -83,12 +83,13 @@ public class ChatHandler {
             }
 
             public void onLoginFail(SocketMessage socketMessage) {
-                SysPrinter.println(SysPrinterType.ERROR, "Incorrect username or password. Please try again.");
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
                 SysPrinter.printCursor();
             }
 
             public void onRegisterSuccess(SocketMessage socketMessage) {
-                SysPrinter.println(SysPrinterType.INFO, "Registration successful! You can now log in.");
+                SysPrinter.println(SysPrinterType.INFO,
+                        "Registration successful! Now verify your account with /verify");
                 SysPrinter.printCursor();
             }
 
@@ -246,6 +247,19 @@ public class ChatHandler {
                 SysPrinter.println(SysPrinterType.INFO, "PING:" + duration + " ms!");
                 SysPrinter.printCursor();
             }
+
+            @Override
+            public void onVerifySuccess(SocketMessage response) {
+                SysPrinter.println(SysPrinterType.INFO, "Your account has been verified!");
+                SysPrinter.printCursor();
+            }
+
+            @Override
+            public void onVerifyFail(SocketMessage response) {
+                SysPrinter.println(SysPrinterType.ERROR,
+                        "Failed to verify your account. Please check your verification code!");
+                SysPrinter.printCursor();
+            }
         });
     }
 
@@ -318,6 +332,9 @@ public class ChatHandler {
                         break;
                     case "/register":
                         handleRegister(scanner);
+                        break;
+                    case "/verify":
+                        handleVerify(scanner);
                         break;
                     case "/help":
                         handleHelp();
@@ -521,5 +538,29 @@ public class ChatHandler {
         pingTime = System.currentTimeMillis();
 
         SysPrinter.println(SysPrinterType.INFO, "ping sent!");
+    }
+
+    private void handleVerify(Scanner scanner) throws SocketMessageIsNotNewException {
+
+        System.out.print("Enter email: ");
+        String email = scanner.nextLine();
+        System.out.print("Enter verification code from email!: ");
+        String code = scanner.nextLine();
+
+        SocketMessage socketMessage = new SocketMessage();
+
+        socketMessage.setType(SocketMessageType.VERIFY);
+
+        JSONObject data = new JSONObject();
+        data.put("verifykey", code);
+        data.put("email", email);
+
+        socketMessage.setData(data);
+
+        socketMessage.setAuthKey(null);
+
+        socketClient.sendMessage(socketMessage);
+
+        SysPrinter.println(SysPrinterType.INFO, "verifing code...");
     }
 }
