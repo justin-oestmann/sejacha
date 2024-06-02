@@ -89,7 +89,7 @@ public class Room {
     }
 
     /**
-     * Inserts the Room Object in the Database
+     * Inserts the Room Object in the Database if an id is already set
      * 
      * @return true = successful / false = failed
      */
