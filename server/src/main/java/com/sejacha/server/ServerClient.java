@@ -86,7 +86,6 @@ public class ServerClient extends Thread {
     private void handleMessages(String input)
             throws Exception {
         SocketMessage socketMessage = new SocketMessage(input);
-        SysPrinter.println("debug", input);
         if (this.user == null) {
             if (socketMessage.getType() == SocketMessageType.LOGIN) {
 
@@ -120,7 +119,18 @@ public class ServerClient extends Thread {
                     this.sendMessage(returnMessage);
                     this.user = null;
 
-                    SysPrinter.println(socket, SocketMessageType.LOGIN.getNameOfType(), "password invalid");
+                    SysPrinter.println(socket, SocketMessageType.LOGIN.getNameOfType(), "wrong password");
+
+                    return;
+                }
+
+                if (!this.user.isVerified()) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGIN_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "not verified!"));
+                    this.sendMessage(returnMessage);
+                    this.user = null;
+
+                    SysPrinter.println(socket, SocketMessageType.LOGIN.getNameOfType(), "not verified");
 
                     return;
                 }
@@ -134,6 +144,43 @@ public class ServerClient extends Thread {
 
                 SysPrinter.println(socket, SocketMessageType.LOGIN.getNameOfType(), "successful");
 
+                return;
+
+            }
+
+            if (socketMessage.getType() == SocketMessageType.VERIFY) {
+
+                this.user = new User();
+                if (!user.loadByEmail(socketMessage.getData().getString("email"))) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.VERIFY_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "loading account failed!"));
+                    this.sendMessage(returnMessage);
+                    this.user = null;
+
+                    SysPrinter.println(socket, SocketMessageType.VERIFY.getNameOfType(), "account credentials invalid");
+
+                    return;
+                }
+
+                if (!this.user.verifyAccount(socketMessage.getData().getString("verifykey"))) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.VERIFY_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "verify code invalid"));
+                    this.sendMessage(returnMessage);
+                    this.user = null;
+
+                    SysPrinter.println(socket, SocketMessageType.VERIFY.getNameOfType(), "verify code invalid");
+
+                    return;
+
+                }
+
+                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.VERIFY_RESPONSE_SUCCESS,
+                        null);
+                this.sendMessage(returnMessage);
+
+                SysPrinter.println(socket, SocketMessageType.VERIFY.getNameOfType(), "successful");
+                this.user.save();
+                this.user = null;
                 return;
 
             }
