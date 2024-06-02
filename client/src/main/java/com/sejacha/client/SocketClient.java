@@ -216,13 +216,14 @@ public class SocketClient {
         this.sendMessage(socketMessage);
     }
 
-    public void register(String username, String password) throws SocketMessageIsNotNewException {
+    public void register(String username, String email, String password) throws SocketMessageIsNotNewException {
         SocketMessage socketMessage = new SocketMessage();
 
         socketMessage.setType(SocketMessageType.REGISTER);
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("username", username);
+        jsonObject.put("email", email);
         jsonObject.put("password", Crypt.calculateSHA512(password));
 
         socketMessage.setData(jsonObject);
