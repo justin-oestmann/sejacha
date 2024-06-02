@@ -117,7 +117,11 @@ public class User {
                 this.state = UserState.fromInt(result.getInt("user_state"));
                 this.user_updated_at = result.getTimestamp("user_updated_at").toLocalDateTime();
                 this.verify_code = result.getString("user_email_verify_code");
-                this.verified_at = result.getTimestamp("user_email_verified_at").toLocalDateTime();
+                try {
+                    this.verified_at = result.getTimestamp("user_email_verified_at").toLocalDateTime();
+                } catch (Exception ex) {
+                    this.verified_at = null;
+                }
             }
 
             return true;
@@ -382,6 +386,10 @@ public class User {
 
     public boolean verifyPassword(String passwordHash) {
         return this.password.equals(passwordHash);
+    }
+
+    public boolean isVerified() {
+        return verified_at == null ? false : true;
     }
 
 }
