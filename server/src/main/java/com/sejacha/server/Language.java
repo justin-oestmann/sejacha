@@ -2,6 +2,7 @@ package com.sejacha.server;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -10,27 +11,26 @@ import java.util.Properties;
  */
 public class Language {
 
-    private Properties languageData = new Properties();
+    protected static Properties properties = new Properties();
+    private static String propertiesFileName = "language.properties";
 
     /**
      * Lädt die Sprachdaten aus der properties-Datei.
      */
-    public void load() {
-        FileInputStream input = null;
-        try {
-            input = new FileInputStream(".\\language.properties");
-            this.languageData.load(input);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+    public static void load() {
+
+        try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream(propertiesFileName)) {
+            if (inputStream != null) {
+                properties.load(inputStream);
+                // Eigenschaften verwenden
+                return;
+            } else {
+                SysPrinter.println("Language", "Property file '" + propertiesFileName + "' not found in the classpath");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return;
     }
 
     /**
@@ -41,23 +41,12 @@ public class Language {
      *         nicht gefunden wurde.
      */
     public static String getText(LanguageText v) {
-        Properties properties = new Properties();
-        FileInputStream input = null;
         try {
-            input = new FileInputStream(".\\language.properties");
-            properties.load(input);
-            return properties.getProperty(v.toString());
-        } catch (IOException ex) {
+            return properties.getProperty(v.getNameOfType());
+        } catch (Exception ex) {
             ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
         return null;
+
     }
 }
