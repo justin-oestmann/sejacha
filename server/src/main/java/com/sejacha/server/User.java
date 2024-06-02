@@ -20,19 +20,19 @@ import com.sejacha.server.exceptions.UserNoVerifyCodeExists;
 
 public class User {
 
-    private String id;
+    private String id = null;
     private String name;
     private String email;
 
     private String password;
     private LocalDateTime password_changed_at;
 
-    private UserState state;
+    private UserState state = UserState.UNVERIFIED;
 
     private LocalDateTime user_updated_at;
 
     private String verify_code;
-    private LocalDateTime verified_at;
+    private LocalDateTime verified_at = null;
 
     private String authKey = null; // ONLY LOCAL!!!
 
@@ -181,8 +181,6 @@ public class User {
             throw new MissingParameterException("user_updated_at");
         if (verify_code == null)
             throw new MissingParameterException("verify_code");
-        if (verified_at == null)
-            throw new MissingParameterException("verified_at");
 
         try {
             Connection connection = Database.getConnection();
@@ -197,7 +195,11 @@ public class User {
             statement.setInt(6, this.state.getNameOfType());
             statement.setTimestamp(7, Timestamp.valueOf(this.user_updated_at));
             statement.setString(8, this.verify_code);
-            statement.setTimestamp(9, Timestamp.valueOf(this.verified_at));
+            if (this.verified_at == null) {
+                statement.setTimestamp(9, null);
+            } else {
+                statement.setTimestamp(9, Timestamp.valueOf(this.verified_at));
+            }
 
             int affectedRows = statement.executeUpdate();
             return affectedRows > 0;
@@ -236,6 +238,14 @@ public class User {
     @SuppressWarnings("unused")
     private void setID(String id) {
         this.id = id;
+        this.user_updated_at = LocalDateTime.now();
+    }
+
+    public void genID() throws Exception {
+        if (this.id != null) {
+            throw new Exception("user is already loaded");
+        }
+        this.id = Database.getUniqueID("user");
         this.user_updated_at = LocalDateTime.now();
     }
 
@@ -317,8 +327,8 @@ public class User {
             throw new UserInvalidStateException("user is not in the right state!");
         }
 
-        this.authKey = RandomString.generateNumberCode(6);
-        Mailing.sendEmail(this.getEmail(), Language.getText(LanguageText.EMAIL_VERIFY_SUBJECT), this.authKey);
+        this.verify_code = RandomString.generateNumberCode(6);
+        Mailing.sendEmail(this.getEmail(), Language.getText(LanguageText.EMAIL_VERIFY_SUBJECT), this.verify_code);
     }
 
     /**
