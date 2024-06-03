@@ -60,6 +60,7 @@ public class ChatHandler {
     private boolean isAdmin = false;
     private SocketClient socketClient;
     private String authKey = null;
+    private boolean in_room = false;
 
     private long pingTime = 0;
 
@@ -114,8 +115,7 @@ public class ChatHandler {
 
             @Override
             public void onNewMessageSuccess(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.INFO, "Message sent successfully");
-                System.out.println("Your message has been sent.");
+
             }
 
             @Override
@@ -126,10 +126,11 @@ public class ChatHandler {
 
             @Override
             public void onRoomJoinSuccess(SocketMessage response) {
-                // String roomName = response.getRoomName();
-                // SysPrinter.println(SysPrinterType.INFO, currentUser + "has joined the room" +
-                // roomName);
-                // System.out.println("You have joined the room: " + roomName);
+                SysPrinter.println(SysPrinterType.INFO, "You joined the room \"" + response.getData()
+                        .getString("room_name") + "\" successfully!");
+                in_room = true;
+                SysPrinter.setRoomState(currentUser);
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -266,6 +267,16 @@ public class ChatHandler {
                 // TODO Auto-generated method stub
                 throw new UnsupportedOperationException("Unimplemented method 'onNotify'");
             }
+
+            @Override
+            public void onNewMessage(SocketMessage response) {
+                if (response.getData().getString("author") != currentUser) {
+                    SysPrinter.cleanLine();
+                    SysPrinter.println(response.getData().getString("author"), response.getData().getString("msg"));
+                    SysPrinter.printCursor();
+                }
+
+            }
         });
     }
 
@@ -327,7 +338,11 @@ public class ChatHandler {
                         break;
 
                     default:
-                        System.out.println("Unknown command. Type '/help' for a list of available commands.");
+                        if (in_room) {
+                            handleNewMessage(input);
+                        } else {
+                            System.out.println("Unknown command. Type '/help' for a list of available commands.");
+                        }
                         break;
                 }
 
@@ -354,6 +369,7 @@ public class ChatHandler {
                     case "/ping":
                         handlePing(scanner);
                         break;
+
                     default:
                         System.out.println("Unknown command. Type '/help' for a list of available commands.");
                         break;
@@ -562,5 +578,20 @@ public class ChatHandler {
         socketClient.sendMessage(socketMessage);
 
         SysPrinter.println(SysPrinterType.INFO, "verifing code...");
+    }
+
+    private void handleNewMessage(String msg) throws SocketMessageIsNotNewException {
+        SocketMessage socketMessage = new SocketMessage();
+
+        socketMessage.setType(SocketMessageType.NEWMESSAGE);
+
+        JSONObject data = new JSONObject();
+        data.put("msg", msg);
+
+        socketMessage.setData(data);
+
+        socketMessage.setAuthKey(authKey);
+
+        socketClient.sendMessage(socketMessage);
     }
 }
