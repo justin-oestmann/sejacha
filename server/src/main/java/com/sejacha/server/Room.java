@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 // import java.util.List;
 
+import com.sejacha.server.exceptions.MissingParameterException;
+
 public class Room {
     private boolean isLoaded = false;
     private String id = null;
@@ -93,10 +95,17 @@ public class Room {
      * 
      * @return true = successful / false = failed
      */
-    public boolean create() {
-        if (this.id == null) {
-            return false;
-        }
+    public boolean create() throws MissingParameterException {
+        if (id == null)
+            throw new MissingParameterException("id");
+        if (owner == null)
+            throw new MissingParameterException("owner");
+        if (name == null)
+            throw new MissingParameterException("name");
+        if (type == null)
+            throw new MissingParameterException("type");
+        if (type.getNameOfType() == 1 && password == null)
+            throw new MissingParameterException("password");
 
         if (this.isLoaded) {
             return false;
