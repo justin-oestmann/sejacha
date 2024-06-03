@@ -1,7 +1,7 @@
 package com.sejacha.server;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+// import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -14,8 +14,8 @@ public class Message {
     private String user_id;
     private String room_id;
     private String text;
-    private boolean is_read;
-    private String attachment;
+    // private boolean is_read;
+    // private String attachment;
     private LocalDateTime timestamp;
 
     /**
@@ -141,9 +141,9 @@ public class Message {
             throw new Exception("user_id not set!");
         }
 
-        if (this.timestamp == null) {
-            throw new Exception("timestamp not set!");
-        }
+        // if (this.timestamp == null) {
+        //     throw new Exception("timestamp not set!");  //  Wird automatisch von der Datenbank gesetzt
+        // }
 
         if (this.text == null) {
             throw new Exception("message not set!");
