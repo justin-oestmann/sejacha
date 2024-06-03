@@ -134,27 +134,24 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomJoinFail(SocketMessage response) {
-                // String roomName = response.getRoomName();
-                // SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join
-                // the room" + roomName);
-                // System.out.println("Failed joining the room " + roomName);
+            public void onRoomJoinFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
             public void onRoomJoinWPasswordSuccess(SocketMessage response) {
-                // String roomName = response.getRoomName();
-                // SysPrinter.println(SysPrinterType.ERROR, currentUser + "has joined the room"
-                // + roomName);
-                // System.out.println("You have joined the room: " + roomName);
+                SysPrinter.println(SysPrinterType.INFO, "You joined the room \"" + response.getData()
+                        .getString("room_name") + "\" successfully!");
+                in_room = true;
+                SysPrinter.setRoomState(currentUser);
+                SysPrinter.printCursor();
             }
 
             @Override
-            public void onRoomJoinWPasswordFail(SocketMessage response) {
-                // String roomName = response.getRoomName();
-                // SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join
-                // the room" + roomName);
-                // System.out.println("Failed joining the room " + roomName);
+            public void onRoomJoinWPasswordFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -164,9 +161,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomLeaveFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to leave the room");
-                System.out.println("Failed to leave the room.");
+            public void onRoomLeaveFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -176,9 +173,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomCreateFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to create the room");
-                System.out.println("Failed to create the room.");
+            public void onRoomCreateFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -188,9 +185,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomGetInfoFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to retrieve room info");
-                System.out.println("Failed to retrieve room information.");
+            public void onRoomGetInfoFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -200,9 +197,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomInviteContactFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to invite contact");
-                System.out.println("Failed to invite contact to the room.");
+            public void onRoomInviteContactFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -212,9 +209,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onContactAddFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to add contact");
-                System.out.println("Failed to add contact.");
+            public void onContactAddFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -224,9 +221,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onContactRemoveFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to remove contact");
-                System.out.println("Failed to remove contact.");
+            public void onContactRemoveFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -236,8 +233,8 @@ public class ChatHandler {
             }
 
             @Override
-            public void onContactCreateDMRoomFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to create DM room");
+            public void onContactCreateDMRoomFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
                 SysPrinter.printCursor();
             }
 
@@ -256,9 +253,8 @@ public class ChatHandler {
             }
 
             @Override
-            public void onVerifyFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR,
-                        "Failed to verify your account. Please check your verification code!");
+            public void onVerifyFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
                 SysPrinter.printCursor();
             }
 
