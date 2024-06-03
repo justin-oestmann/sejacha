@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 // import java.util.List;
 
-
 public class Room {
     private boolean isLoaded = false;
     private String id = null;
@@ -25,7 +24,7 @@ public class Room {
      * 
      * @param owner String owner of the Room
      * @param name  String name of the Room
-     * @return boolean true = could be initRoomd / false = couldn't be initRoomd
+     * @return true = successful / false = failed
      * @throws Exception
      */
     public boolean initRoom(String owner, String name) throws Exception {
@@ -45,9 +44,8 @@ public class Room {
      * 
      * @param owner String owner of the Room
      * @param name  String name of the Room
-     * @param type  int declares the type of the Room (0 - Public (Standard) / 1 -
-     *              Private)
-     * @return boolean true = could be initRoomd / false = couldn't be initRoomd
+     * @param type  int declares the type of the Room (PUBLIC / PRIVATE / BROADCAST)
+     * @return true = successful / false = failed
      * @throws Exception
      */
     public boolean initRoom(String owner, String name, RoomType type) throws Exception {
@@ -73,7 +71,7 @@ public class Room {
      * @param owner    String owner of the Room
      * @param name     String name of the Room
      * @param password String password of the private Room
-     * @return
+     * @return true = successful / false = failed
      * @throws Exception
      */
     public boolean initRoom(String owner, String name, String password) throws Exception {
