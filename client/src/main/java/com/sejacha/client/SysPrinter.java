@@ -6,6 +6,20 @@ import java.time.format.DateTimeFormatter;
 public class SysPrinter {
 
     protected static boolean cursor_double = false;
+    protected static boolean in_room = false;
+    protected static String uname = "";
+
+    public static void setRoomState(String uname) {
+        if (uname == null) {
+            uname = "";
+            in_room = false;
+            return;
+        }
+        SysPrinter.uname = uname;
+        in_room = true;
+        return;
+
+    }
 
     public static void setCursorDouble(boolean state) {
         cursor_double = state;
@@ -16,6 +30,12 @@ public class SysPrinter {
         for (int i = 0; i < 50; ++i) {
             System.out.println(" ");
         }
+    }
+
+    public static void cleanLine() {
+
+        System.out.println(" ");
+
     }
 
     public static void println(String weight, String message) {
@@ -30,7 +50,7 @@ public class SysPrinter {
 
     public static void printCursor() {
         if (cursor_double) {
-            System.out.print(">> ");
+            System.out.print(in_room ? "" : ">> ");
             return;
         }
         System.out.print("> ");
