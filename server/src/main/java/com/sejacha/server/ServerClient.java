@@ -55,6 +55,8 @@ public class ServerClient extends Thread {
             try {
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
+
+                    SysPrinter.println("debug", inputLine);
                     this.handleMessages(inputLine);
                 }
             } catch (SocketException e) {
@@ -75,6 +77,13 @@ public class ServerClient extends Thread {
                 }
             }
         }
+    }
+
+    public User getUser() {
+        if (this.user == null) {
+            return null;
+        }
+        return this.user;
     }
 
     /**
@@ -223,24 +232,63 @@ public class ServerClient extends Thread {
                 SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.PING, null);
                 this.sendMessage(returnMessage);
             }
-        } else {
+        }
+
+        if (this.user != null && this.user.verifyAuthKey(socketMessage.getAuthKey())) {
             if (socketMessage.getType() == SocketMessageType.LOGOUT) {
 
-                if (this.user.verifyAuthKey(socketMessage.getAuthKey())) {
+                this.user = null;
 
-                    this.user = null;
-
-                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGOUT_RESPONSE_SUCCESS,
-                            null);
-                    this.sendMessage(returnMessage);
-                    SysPrinter.println(socket, SocketMessageType.LOGOUT.getNameOfType(), "successful");
-                    return;
-                }
-                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGOUT_RESPONSE_FAIL,
+                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.LOGOUT_RESPONSE_SUCCESS,
                         null);
                 this.sendMessage(returnMessage);
-                SysPrinter.println(socket, SocketMessageType.LOGOUT.getNameOfType(), "failed");
+                SysPrinter.println(socket, SocketMessageType.LOGOUT.getNameOfType(), "successful");
                 return;
+
+            }
+
+            if (socketMessage.getType() == SocketMessageType.ROOM_JOIN) {
+
+                if (!socketMessage.getData().has("room_id")) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.ROOM_JOIN_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "no room id!"));
+                    this.sendMessage(returnMessage);
+
+                    SysPrinter.println(socket, SocketMessageType.ROOM_JOIN.getNameOfType(), "no room id!");
+
+                    return;
+                }
+
+                Room room = new Room();
+
+                if (!room.loadByID(socketMessage.getData().getString("room_id"))) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.ROOM_JOIN_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "room not exists"));
+                    this.sendMessage(returnMessage);
+
+                    SysPrinter.println(socket, SocketMessageType.ROOM_JOIN.getNameOfType(), "room not exists");
+
+                    return;
+                }
+
+                if (!RoomManager.joinRoom(this, room)) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.ROOM_JOIN_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "error while joining room"));
+                    this.sendMessage(returnMessage);
+
+                    SysPrinter.println(socket, SocketMessageType.ROOM_JOIN.getNameOfType(), "error while joining room");
+
+                    return;
+                }
+
+                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.ROOM_JOIN_RESPONSE_SUCCESS,
+                        new JSONObject().put("reason", "joined room!"));
+                this.sendMessage(returnMessage);
+
+                SysPrinter.println(socket, SocketMessageType.ROOM_JOIN.getNameOfType(), "joined room!");
+
+                return;
+
             }
         }
     }
