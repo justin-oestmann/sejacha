@@ -10,14 +10,14 @@ import org.json.JSONObject;
 import com.sejacha.client.exceptions.SocketMessageIsNotNewException;
 
 class Room {
-    private int id;
+    private String id;
     private String name;
     private String owner;
     private int type;
     private String password;
     private LocalDateTime timestamp;
 
-    public Room(int id, String name, String owner, int type, String password, LocalDateTime timestamp) {
+    public Room(String id, String name, String owner, int type, String password, LocalDateTime timestamp) {
         this.id = id;
         this.name = name;
         this.owner = owner;
@@ -26,7 +26,7 @@ class Room {
         this.timestamp = timestamp;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -55,7 +55,7 @@ public class ChatHandler {
     private String[] commands = { "room", "help", "login", "register", "restart", "ping", "exit" };
     private String[] subCommands = { "create", "join", "delete", "help" };
     private List<Room> rooms = new ArrayList<>();
-    private int nextRoomId = 1;
+    // private String nextRoomId = "1";
     private String currentUser = null;
     private boolean isAdmin = false;
     private SocketClient socketClient;
@@ -134,27 +134,24 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomJoinFail(SocketMessage response) {
-                // String roomName = response.getRoomName();
-                // SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join
-                // the room" + roomName);
-                // System.out.println("Failed joining the room " + roomName);
+            public void onRoomJoinFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
             public void onRoomJoinWPasswordSuccess(SocketMessage response) {
-                // String roomName = response.getRoomName();
-                // SysPrinter.println(SysPrinterType.ERROR, currentUser + "has joined the room"
-                // + roomName);
-                // System.out.println("You have joined the room: " + roomName);
+                SysPrinter.println(SysPrinterType.INFO, "You joined the room \"" + response.getData()
+                        .getString("room_name") + "\" successfully!");
+                in_room = true;
+                SysPrinter.setRoomState(currentUser);
+                SysPrinter.printCursor();
             }
 
             @Override
-            public void onRoomJoinWPasswordFail(SocketMessage response) {
-                // String roomName = response.getRoomName();
-                // SysPrinter.println(SysPrinterType.ERROR, currentUser + "has failed to join
-                // the room" + roomName);
-                // System.out.println("Failed joining the room " + roomName);
+            public void onRoomJoinWPasswordFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -164,9 +161,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomLeaveFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to leave the room");
-                System.out.println("Failed to leave the room.");
+            public void onRoomLeaveFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -176,9 +173,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomCreateFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to create the room");
-                System.out.println("Failed to create the room.");
+            public void onRoomCreateFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -188,9 +185,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomGetInfoFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to retrieve room info");
-                System.out.println("Failed to retrieve room information.");
+            public void onRoomGetInfoFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -200,9 +197,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onRoomInviteContactFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to invite contact");
-                System.out.println("Failed to invite contact to the room.");
+            public void onRoomInviteContactFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -212,9 +209,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onContactAddFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to add contact");
-                System.out.println("Failed to add contact.");
+            public void onContactAddFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -224,9 +221,9 @@ public class ChatHandler {
             }
 
             @Override
-            public void onContactRemoveFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to remove contact");
-                System.out.println("Failed to remove contact.");
+            public void onContactRemoveFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
+                SysPrinter.printCursor();
             }
 
             @Override
@@ -236,8 +233,8 @@ public class ChatHandler {
             }
 
             @Override
-            public void onContactCreateDMRoomFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR, "Failed to create DM room");
+            public void onContactCreateDMRoomFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
                 SysPrinter.printCursor();
             }
 
@@ -256,9 +253,8 @@ public class ChatHandler {
             }
 
             @Override
-            public void onVerifyFail(SocketMessage response) {
-                SysPrinter.println(SysPrinterType.ERROR,
-                        "Failed to verify your account. Please check your verification code!");
+            public void onVerifyFail(SocketMessage socketMessage) {
+                SysPrinter.println(SysPrinterType.ERROR, socketMessage.getData().getString("reason"));
                 SysPrinter.printCursor();
             }
 
@@ -422,20 +418,21 @@ public class ChatHandler {
         }
     }
 
-    private void handleRoomCreate(String[] inputParts) {
+    private void handleRoomCreate(String[] inputParts) throws SocketMessageIsNotNewException {
         if (inputParts.length < 4) {
-            System.out.println("Usage: /room create <name> <password> [type]");
+            System.out.println("Usage: /room create <id> <name> [password] [type]");
             return;
         }
 
-        String roomName = inputParts[2];
+        String roomId = inputParts[2];
+        String roomName = inputParts[3];
         String owner = currentUser;
-        String password = inputParts[3];
-        int type = 0;
+        String password = inputParts.length >= 5 ? inputParts[4] : "";
+        int type = password.isEmpty() ? 0 : 1;
 
-        if (inputParts.length >= 5) {
+        if (inputParts.length >= 6) {
             try {
-                type = Integer.parseInt(inputParts[4]);
+                type = Integer.parseInt(inputParts[5]);
                 if (type != 0 && type != 1) {
                     System.out
                             .println("Invalid type. Type must be 0 (public) or 1 (private). Defaulting to public (0).");
@@ -447,56 +444,62 @@ public class ChatHandler {
             }
         }
 
-        if (type == 1 && password.isEmpty()) {
-            System.out.println("Password is required for a private room.");
-            return;
-        }
-
         LocalDateTime timestamp = LocalDateTime.now();
-
-        Room newRoom = new Room(nextRoomId++, roomName, owner, type, password, timestamp);
+        Room newRoom = new Room(roomId, roomName, owner, type, password, timestamp);
         rooms.add(newRoom);
-        System.out.println("A new room has been created! Room ID: " + newRoom.getId() +
+
+        SocketMessage socketMessage = new SocketMessage();
+        socketMessage.setAuthKey(authKey);
+        socketMessage.setType(SocketMessageType.ROOM_CREATE);
+
+        JSONObject data = new JSONObject();
+        data.put("room_id", roomId);
+        data.put("name", roomName);
+        data.put("type", type);
+        data.put("password", password);
+
+        socketMessage.setData(data);
+        socketClient.sendMessage(socketMessage);
+
+        System.out.println("A new room has been created! Room ID: " + roomId +
                 ", Name: " + newRoom.getName() +
                 ", Owner: " + newRoom.getOwner() +
                 ", Type: " + newRoom.getType() +
-                ", Password: " + newRoom.getPassword() +
+                ", Password: " + (password.isEmpty() ? "None" : password) +
                 ", Timestamp: " + newRoom.getTimestamp());
     }
 
-    private void handleRoomJoin(String room_id, Scanner scanner) throws SocketMessageIsNotNewException {
+    private void handleRoomJoin(String roomId, Scanner scanner) throws SocketMessageIsNotNewException {
         SocketMessage socketMessage = new SocketMessage();
         socketMessage.setAuthKey(authKey);
         socketMessage.setType(SocketMessageType.ROOM_JOIN);
 
         JSONObject data = new JSONObject();
-        data.put("room_id", room_id);
+        data.put("room_id", roomId);
 
         socketMessage.setData(data);
-
-        socketMessage.setAuthKey(authKey);
 
         socketClient.sendMessage(socketMessage);
     }
 
-    private void handleRoomDelete(String roomName) {
-        if (roomName.isEmpty()) {
-            System.out.println("Please specify a name for the room.");
+    private void handleRoomDelete(String roomId) {
+        if (roomId.isEmpty()) {
+            System.out.println("Please specify an ID for the room.");
             return;
         }
         for (Room room : rooms) {
-            if (room.getName().equalsIgnoreCase(roomName)) {
+            if (room.getId().equalsIgnoreCase(roomId)) {
                 if (room.getOwner().equals(currentUser) || isAdmin) {
                     rooms.remove(room);
-                    System.out.println("The room '" + roomName + "' has been deleted.");
+                    System.out.println("The room with ID '" + roomId + "' has been deleted.");
                 } else {
-                    System.out.println("You do not have permission to delete the room '" + roomName
+                    System.out.println("You do not have permission to delete the room with ID '" + roomId
                             + "'. Only the owner or an admin can delete this room.");
                 }
                 return;
             }
         }
-        System.out.println("Room '" + roomName + "' not found.");
+        System.out.println("Room with ID '" + roomId + "' not found.");
     }
 
     private void handleRoomHelp() {

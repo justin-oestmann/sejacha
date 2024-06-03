@@ -1,7 +1,7 @@
 package com.sejacha.server;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+// import java.io.FileInputStream;
+// import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -9,6 +9,7 @@ import java.util.Properties;
  * Die Klasse Language dient zum Laden von Sprachdaten aus einer
  * properties-Datei und zum Abrufen von Texten basierend auf Schlüsseln.
  */
+
 public class Language {
 
     protected static Properties properties = new Properties();
