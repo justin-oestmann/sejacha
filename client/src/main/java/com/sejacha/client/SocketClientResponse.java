@@ -3,6 +3,8 @@ package com.sejacha.client;
 interface SocketClientResponse {
     void onPing(SocketMessage response);
 
+    void onNotify(SocketMessage response);
+
     void onVerifySuccess(SocketMessage response);
 
     void onVerifyFail(SocketMessage response);

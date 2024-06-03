@@ -260,6 +260,12 @@ public class ChatHandler {
                         "Failed to verify your account. Please check your verification code!");
                 SysPrinter.printCursor();
             }
+
+            @Override
+            public void onNotify(SocketMessage response) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'onNotify'");
+            }
         });
     }
 

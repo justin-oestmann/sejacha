@@ -2,6 +2,7 @@ package com.sejacha.client;
 
 public enum SocketMessageType {
     PING("ping"),
+    NOTIFY("notify"),
 
     VERIFY("verify"),
     VERIFY_RESPONSE_SUCCESS("verify_response_success"),
