@@ -30,6 +30,19 @@ public class RoomManager {
 
     }
 
+    public static boolean leaveRoom(ServerClient user, Room room) throws Exception {
+
+        for (RoomHandler roomHandler : active_rooms) {
+            if (StringModify.areStringsEqual(roomHandler.getRoom().getID(), room.getID())) {
+                roomHandler.unSubscribeRoom(user);
+                roomHandler.notifyAll(user.getUser().getName() + " left the room!");
+                return true;
+            }
+        }
+        return false;
+
+    }
+
     public static boolean isRoomActive(Room room) {
         for (RoomHandler roomHandler : active_rooms) {
             SysPrinter.println(roomHandler.getRoom().getID(), room.getID());
