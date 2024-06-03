@@ -384,6 +384,10 @@ public class User {
         return this.authKey = RandomString.generate(32);
     }
 
+    public String getAuthKey() {
+        return this.authKey;
+    }
+
     public boolean verifyPassword(String passwordHash) {
         return this.password.equals(passwordHash);
     }
