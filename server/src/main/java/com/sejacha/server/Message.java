@@ -149,17 +149,16 @@ public class Message {
             throw new Exception("message not set!");
         }
 
-        String query = "INSERT INTO messages (message_id,message_user_id,message_room_id,message_timestamp,message_text) VALUES (?,?,?,?,?)";
+        String query = "INSERT INTO messages (msg_id, msg_user_id ,msg_room_id ,msg_send, msg_text ) VALUES (UUID(), ?,?,?,?)";
         PreparedStatement stmt = Database.getConnection().prepareStatement(query);
 
-        stmt.setString(1, this.id);
-        stmt.setString(2, this.user_id);
-        stmt.setString(3, this.room_id);
-        stmt.setString(4, this.timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        stmt.setString(5, this.text);
+        stmt.setString(1, this.user_id);
+        stmt.setString(2, this.room_id);
+        stmt.setString(3, this.timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        stmt.setString(4, this.text);
 
-        ResultSet rs = stmt.executeQuery();
-        return rs.rowInserted();
+        int rowsAffected = stmt.executeUpdate();
+        return rowsAffected > 0;
     }
 
 }
