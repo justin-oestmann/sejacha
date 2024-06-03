@@ -199,6 +199,10 @@ public class SocketClient {
                 this.onNotify(socketMessage);
                 break;
 
+            case NEWMESSAGE:
+                this.onNewMessage(socketMessage);
+                break;
+
             default:
                 SysPrinter.println("Server", "sent invalid message");
                 break;
@@ -361,5 +365,9 @@ public class SocketClient {
 
     private void onNotify(SocketMessage socketMessage) {
         socketClientResponse.onNotify(socketMessage);
+    }
+
+    private void onNewMessage(SocketMessage socketMessage) {
+        socketClientResponse.onNewMessage(socketMessage);
     }
 }
