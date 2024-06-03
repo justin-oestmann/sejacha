@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Room {
     private boolean isLoaded = false;
@@ -153,13 +154,20 @@ public class Room {
      * 
      * @return true = successful / false = failed
      */
-    public boolean load() {
+    public boolean loadByID(String idString) {
         try {
             PreparedStatement statement = Database.getConnection().prepareStatement(
-                    "SELECT * FROM room WHERE room_id=? LIMIT 0,1");
-            statement.setString(1, this.id);
+                    "SELECT * FROM rooms WHERE room_id=? LIMIT 0,1", ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY);
+            statement.setString(1, idString);
 
             ResultSet result = statement.executeQuery();
+
+            if (!result.next()) {
+                return false;
+            }
+            result.beforeFirst();
+
             while (result.next()) {
                 this.id = result.getString("room_id");
                 this.owner = result.getString("room_owner");
