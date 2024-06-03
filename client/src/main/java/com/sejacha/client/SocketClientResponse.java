@@ -5,6 +5,8 @@ interface SocketClientResponse {
 
     void onNotify(SocketMessage response);
 
+    void onNewMessage(SocketMessage response);
+
     void onVerifySuccess(SocketMessage response);
 
     void onVerifyFail(SocketMessage response);
