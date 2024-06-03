@@ -18,6 +18,7 @@ public class ServerClient extends Thread {
     private PrintWriter out;
     private BufferedReader in;
     private User user = null;
+    private Room currentRoom = null;
 
     /**
      * Constructs a {@code ServerClient} with the specified socket and client list.
@@ -270,7 +271,6 @@ public class ServerClient extends Thread {
 
                     return;
                 }
-
                 if (!RoomManager.joinRoom(this, room)) {
                     SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.ROOM_JOIN_RESPONSE_FAIL,
                             new JSONObject().put("reason", "error while joining room"));
@@ -281,11 +281,67 @@ public class ServerClient extends Thread {
                     return;
                 }
 
+                currentRoom = room;
+
                 SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.ROOM_JOIN_RESPONSE_SUCCESS,
-                        new JSONObject().put("reason", "joined room!"));
+                        new JSONObject().put("reason", "joined room!").put("room_name", room.getName()).put("room_id",
+                                room.getID()));
                 this.sendMessage(returnMessage);
 
                 SysPrinter.println(socket, SocketMessageType.ROOM_JOIN.getNameOfType(), "joined room!");
+
+                return;
+
+            }
+
+            if (socketMessage.getType() == SocketMessageType.NEWMESSAGE) {
+                if (currentRoom == null) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.NEWMESSAGE_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "you are not in a room"));
+                    this.sendMessage(returnMessage);
+
+                    SysPrinter.println(socket, SocketMessageType.NEWMESSAGE.getNameOfType(), "is not in a room");
+
+                    return;
+                }
+
+                if (!socketMessage.getData().has("msg")) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.NEWMESSAGE_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "no message received!"));
+                    this.sendMessage(returnMessage);
+
+                    SysPrinter.println(socket, SocketMessageType.NEWMESSAGE.getNameOfType(), "no message received!");
+
+                    return;
+                }
+
+                Message msg = new Message();
+
+                msg.setUserID(this.user.getID());
+                msg.setRoomID(this.currentRoom.getID());
+                msg.setMessage(socketMessage.getData().getString("msg"));
+                msg.setTimeCreated();
+
+                if (!msg.create()) {
+                    SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.NEWMESSAGE_RESPONSE_FAIL,
+                            new JSONObject().put("reason", "error while creating message"));
+                    this.sendMessage(returnMessage);
+
+                    SysPrinter.println(socket, SocketMessageType.NEWMESSAGE.getNameOfType(),
+                            "error while creating message");
+
+                    return;
+                }
+
+                RoomManager.getRoomHandler(this.currentRoom.getID()).sendMessage(msg);
+                ;
+
+                SocketMessage returnMessage = new SocketMessage(null, SocketMessageType.NEWMESSAGE_RESPONSE_SUCCESS,
+                        new JSONObject().put("reason", "success"));
+                this.sendMessage(returnMessage);
+
+                SysPrinter.println(socket, SocketMessageType.NEWMESSAGE.getNameOfType(),
+                        "sent message to " + this.currentRoom.getID());
 
                 return;
 
