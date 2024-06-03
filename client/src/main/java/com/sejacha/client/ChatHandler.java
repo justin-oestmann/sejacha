@@ -55,7 +55,7 @@ public class ChatHandler {
     private String[] commands = { "room", "help", "login", "register", "restart", "ping", "exit" };
     private String[] subCommands = { "create", "join", "delete", "help" };
     private List<Room> rooms = new ArrayList<>();
-    private String nextRoomId = "1";
+    // private String nextRoomId = "1";
     private String currentUser = null;
     private boolean isAdmin = false;
     private SocketClient socketClient;
