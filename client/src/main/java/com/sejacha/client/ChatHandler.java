@@ -362,7 +362,7 @@ public class ChatHandler {
         }
     }
 
-    private void handleRoom(String[] inputParts, Scanner scanner) {
+    private void handleRoom(String[] inputParts, Scanner scanner) throws SocketMessageIsNotNewException {
         if (inputParts.length < 2) {
             System.out.println("Incorrect usage of the command. Type '/help room' for a list of available commands.");
             return;
@@ -375,13 +375,13 @@ public class ChatHandler {
 
         String subCommand = inputParts[1];
         switch (subCommand) {
-            case "/create":
+            case "create":
                 handleRoomCreate(inputParts);
                 break;
-            case "/join":
+            case "join":
                 if (inputParts.length >= 3) {
                     try {
-                        int roomId = Integer.parseInt(inputParts[2]);
+                        String roomId = inputParts[2];
                         handleRoomJoin(roomId, scanner);
                     } catch (NumberFormatException e) {
                         System.out.println("Usage: /room join <id>");
@@ -390,7 +390,7 @@ public class ChatHandler {
                     System.out.println("Usage: /room join <id>");
                 }
                 break;
-            case "/delete":
+            case "delete":
                 if (inputParts.length >= 3) {
                     handleRoomDelete(inputParts[2]);
                 } else {
@@ -448,27 +448,19 @@ public class ChatHandler {
                 ", Timestamp: " + newRoom.getTimestamp());
     }
 
-    private void handleRoomJoin(int roomId, Scanner scanner) {
-        for (Room room : rooms) {
-            if (room.getId() == roomId) {
-                if (room.getType() == 1) {
-                    System.out.print("This room is private. Please enter the password: ");
-                    String enteredPassword = scanner.nextLine();
-                    if (room.getPassword().equals(enteredPassword)) {
-                        System.out.println(
-                                "You have joined the private room '" + room.getName() + "' with ID " + room.getId()
-                                        + "!");
-                    } else {
-                        System.out.println("Incorrect password. Access denied.");
-                    }
-                } else {
-                    System.out.println(
-                            "You have joined the public room '" + room.getName() + "' with ID " + room.getId() + "!");
-                }
-                return;
-            }
-        }
-        System.out.println("Room with ID '" + roomId + "' not found.");
+    private void handleRoomJoin(String room_id, Scanner scanner) throws SocketMessageIsNotNewException {
+        SocketMessage socketMessage = new SocketMessage();
+        socketMessage.setAuthKey(authKey);
+        socketMessage.setType(SocketMessageType.ROOM_JOIN);
+
+        JSONObject data = new JSONObject();
+        data.put("room_id", room_id);
+
+        socketMessage.setData(data);
+
+        socketMessage.setAuthKey(authKey);
+
+        socketClient.sendMessage(socketMessage);
     }
 
     private void handleRoomDelete(String roomName) {
