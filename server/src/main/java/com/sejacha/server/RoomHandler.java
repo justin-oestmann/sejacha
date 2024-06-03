@@ -30,6 +30,7 @@ public class RoomHandler {
             throw new Exception("client not in the room!");
         }
         this.clients.remove(user);
+
     }
 
     public Room getRoom() {
@@ -37,25 +38,34 @@ public class RoomHandler {
     }
 
     public void sendMessage(Message msg) throws Exception {
-        if (msg.getRoomID() != this.room.getID()) {
+        if (!StringModify.areStringsEqual(msg.getRoomID(), this.room.getID())) {
             throw new Exception("room_id invalid!");
         }
 
-        if (!msg.create()) {
-            throw new Exception("message creation failed!");
-        }
-
         for (ServerClient serverClient : clients) {
-            JSONObject messageContent = new JSONObject();
 
-            messageContent.put("message", msg.getMessage());
-            messageContent.put("author", msg.getUserID());
-            messageContent.put("room", msg.getRoomID());
+            if (!StringModify.areStringsEqual(serverClient.getUser().getID(), msg.getUserID())) {
+                JSONObject messageContent = new JSONObject();
 
-            SocketMessage socketMessage = new SocketMessage(serverClient.getUser().getAuthKey(),
-                    SocketMessageType.NEWMESSAGE, messageContent);
+                messageContent.put("msg", msg.getMessage());
 
-            serverClient.sendMessage(socketMessage);
+                String author_name = "null";
+
+                for (ServerClient serverClient2 : clients) {
+                    if (StringModify.areStringsEqual(serverClient2.getUser().getID(), msg.getUserID())) {
+                        author_name = serverClient2.getUser().getName();
+                        break;
+                    }
+                }
+
+                messageContent.put("author", author_name);
+                messageContent.put("room", msg.getRoomID());
+
+                SocketMessage socketMessage = new SocketMessage(serverClient.getUser().getAuthKey(),
+                        SocketMessageType.NEWMESSAGE, messageContent);
+
+                serverClient.sendMessage(socketMessage);
+            }
         }
     }
 
@@ -63,12 +73,12 @@ public class RoomHandler {
         for (ServerClient serverClient : clients) {
             JSONObject messageContent = new JSONObject();
 
-            messageContent.put("message", msg);
-            messageContent.put("author", "system");
+            messageContent.put("msg", msg);
+            messageContent.put("author", "Server");
             messageContent.put("room", this.room.getID());
 
             SocketMessage socketMessage = new SocketMessage(serverClient.getUser().getAuthKey(),
-                    SocketMessageType.NOTIFY, messageContent);
+                    SocketMessageType.NEWMESSAGE, messageContent);
 
             serverClient.sendMessage(socketMessage);
         }
