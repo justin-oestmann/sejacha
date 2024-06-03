@@ -380,9 +380,14 @@ public class ChatHandler {
                 break;
             case "/join":
                 if (inputParts.length >= 3) {
-                    handleRoomJoin(inputParts[2], scanner);
+                    try {
+                        int roomId = Integer.parseInt(inputParts[2]);
+                        handleRoomJoin(roomId, scanner);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Usage: /room join <id>");
+                    }
                 } else {
-                    System.out.println("Usage: /room join <name>");
+                    System.out.println("Usage: /room join <id>");
                 }
                 break;
             case "/delete":
@@ -443,30 +448,27 @@ public class ChatHandler {
                 ", Timestamp: " + newRoom.getTimestamp());
     }
 
-    private void handleRoomJoin(String roomName, Scanner scanner) {
-        if (roomName.isEmpty()) {
-            System.out.println("Please specify a name for the room.");
-            return;
-        }
+    private void handleRoomJoin(int roomId, Scanner scanner) {
         for (Room room : rooms) {
-            if (room.getName().equalsIgnoreCase(roomName)) {
+            if (room.getId() == roomId) {
                 if (room.getType() == 1) {
                     System.out.print("This room is private. Please enter the password: ");
                     String enteredPassword = scanner.nextLine();
                     if (room.getPassword().equals(enteredPassword)) {
                         System.out.println(
-                                "You have joined the private room '" + roomName + "' with ID " + room.getId() + "!");
+                                "You have joined the private room '" + room.getName() + "' with ID " + room.getId()
+                                        + "!");
                     } else {
                         System.out.println("Incorrect password. Access denied.");
                     }
                 } else {
                     System.out.println(
-                            "You have joined the public room '" + roomName + "' with ID " + room.getId() + "!");
+                            "You have joined the public room '" + room.getName() + "' with ID " + room.getId() + "!");
                 }
                 return;
             }
         }
-        System.out.println("Room '" + roomName + "' not found.");
+        System.out.println("Room with ID '" + roomId + "' not found.");
     }
 
     private void handleRoomDelete(String roomName) {
