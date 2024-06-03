@@ -40,6 +40,10 @@ public enum SocketMessageType {
     ROOM_CREATE_RESPONSE_SUCCESS("room_create_response_success"),
     ROOM_CREATE_RESPONSE_FAIL("room_create_response_fail"),
 
+    ROOM_DELETE("room_delete"),
+    ROOM_DELETE_RESPONSE_SUCCESS("room_delete_response_success"),
+    ROOM_DELETE_RESPONSE_FAIL("room_delete_response_fail"),
+
     ROOM_GETINFO("room_getinfo"),
     ROOM_GETINFO_RESPONSE_SUCCESS("room_getinfo_response_success"),
     ROOM_GETINFO_RESPONSE_FAIL("room_getinfo_response_fail"),
