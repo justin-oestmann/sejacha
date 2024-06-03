@@ -1,6 +1,9 @@
 package com.sejacha.server;
 
-import java.util.*;
+// import java.util.*; (。_。)
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The Contact class manages friendships between users. Both users must mutually
